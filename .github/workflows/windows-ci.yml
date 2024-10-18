@@ -2,7 +2,6 @@ name: windows-ci
 
 on:
   - push
-  - pull_request
 
 jobs:
   windows-ci:
@@ -75,10 +74,11 @@ jobs:
           pacman -S --noconfirm mingw-w64-${{ env.msys_cpu }}-libmariadbclient
           pacman -S --noconfirm mingw-w64-${{ env.msys_cpu }}-firebird
 
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout harbour/core repo
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.client_payload.branch }}
+          repository: harbour/core
+          path: harbour
 
       - run: pwd
         shell: msys2 {0}
@@ -88,7 +88,7 @@ jobs:
 
       - name: Prepare ccache using action
         if: matrix.compiler != 'bcc'
-        uses: hendrikmuhs/ccache-action@v1.2.10
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: windows-${{ matrix.cpu }}-${{ matrix.compiler }}-${{ matrix.strictness }}-ci
           max-size: "32M"
