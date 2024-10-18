@@ -1,7 +1,7 @@
 name: linux-ci
 
 on:
-  - push
+  workflow_dispatch:
 
 jobs:
   ubuntu-ci:

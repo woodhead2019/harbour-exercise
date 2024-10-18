@@ -1,7 +1,7 @@
 name: windows-ci
 
 on:
-  - push
+  workflow_dispatch:
 
 jobs:
   windows-ci:
