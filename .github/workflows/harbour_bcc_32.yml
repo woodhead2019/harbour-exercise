@@ -1,0 +1,72 @@
+name: Harbour for Windows 32 using BCC
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    if: github.actor == github.event.repository.owner.login
+    
+    steps:    
+    - name: Checkout harbour/core repo
+      uses: actions/checkout@v4
+      with:
+        repository: harbour/core
+        path: harbour
+
+    - name: Install dependencies
+      run: |
+         Invoke-WebRequest -Uri 'https://bitbucket.org/lorenzodla/mod_harbour_actions_resources/downloads/OpenSSL-Win32.zip' -OutFile 'C:\temp\OpenSSL-Win32.zip'
+         Expand-Archive -LiteralPath 'C:\temp\OpenSSL-Win32.zip' -DestinationPath 'C:\OpenSSL' -Force
+         Invoke-WebRequest -Uri 'https://bitbucket.org/lorenzodla/mod_harbour_actions_resources/downloads/curl-7.54.0-win32-mingw.zip' -OutFile 'C:\temp\curl-7.54.0-win32-mingw.zip'
+         Expand-Archive -LiteralPath 'C:\temp\curl-7.54.0-win32-mingw.zip' -DestinationPath 'C:\curl' -Force        
+         Invoke-WebRequest -Uri 'https://github.com/woodhead2019/Harbour_builder/raw/master/.github/temp/win32/bcc7/libcurl.lib' -OutFile 'C:\temp\libcurl.lib'
+         Invoke-WebRequest -Uri 'https://github.com/woodhead2019/Harbour_builder/raw/master/.github/temp/bcc70.zip' -OutFile 'C:\temp\bcc70.zip'
+         Expand-Archive -LiteralPath 'C:\temp\bcc70.zip' -DestinationPath 'C:\bcc7' -Force
+         Invoke-WebRequest -Uri 'https://bitbucket.org/lorenzodla/mod_harbour_actions_resources/downloads/acesdk.zip' -OutFile 'C:\temp\acesdk.zip'
+         Expand-Archive -LiteralPath 'C:\temp\acesdk.zip' -DestinationPath 'C:\acesdk' -Force
+
+    - name: Compile Harbour
+      shell: cmd
+      run: |
+        cd harbour
+        set path=c:\bcc7\bin;%PATH%
+        set HB_BUILD_MODE=c
+        set HB_USER_PRGFLAGS=-l-
+        set HB_BUILD_CONTRIBS=
+        set HB_WITH_OPENSSL=C:\OpenSSL\include
+        set HB_WITH_CURL=C:\curl\include
+        set HB_WITH_ADS=C:\acesdk    
+        set HB_STATIC_OPENSSL=yes
+        set HB_STATIC_CURL=yes    
+        set HB_COMPILER=bcc
+        SET HB_BUILD_CONTRIB_DYN=no
+        SET HB_BUILD_DYN=no
+        set HB_USER_RESFLAGS=-Ic:\bcc7\include\windows\sdk\
+        win-make.exe
+
+    - name: Create output folders
+      shell: cmd
+      run: |
+        mkdir output
+        mkdir output\bin
+        copy harbour\bin\win\bcc\*.exe output\bin
+        mkdir output\lib
+        copy harbour\lib\win\bcc\*.lib output\lib
+        copy C:\temp\libcurl.lib output\lib
+        mkdir output\include 
+        xcopy harbour\include output\include /E /I
+
+    - name: Get current time
+      id: current-time
+      shell: pwsh
+      run: |
+        $time = Get-Date -Format "yyyyMMdd"
+        echo "TIME=$time" | Out-File -Append $env:GITHUB_ENV
+
+    - name: Upload Harbour to artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: harbour_win32_bcc_${{ env.TIME }}
+        path: output
