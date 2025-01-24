@@ -24,7 +24,7 @@ Usage:
    -i<name>, -ini=<name>              a name of ini file
 
 For more information, see:
-      http://www.kresin.ru/notes/index_en.php?b=blog_en&n=8
-      http://www.kresin.ru/notes/index_en.php?b=blog_en&n=9
-      http://www.kresin.ru/notes/index_en.php?b=blog_en&n=10
+      [HwBuilder review](http://www.kresin.ru/notes/index_en.php?b=blog_en&n=8)
+      [HwBuild.ini](http://www.kresin.ru/notes/index_en.php?b=blog_en&n=9)
+      [HwBuilder - project file](http://www.kresin.ru/notes/index_en.php?b=blog_en&n=10)
 
