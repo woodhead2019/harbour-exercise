@@ -2250,6 +2250,12 @@ METHOD Build( lClean, lSub ) CLASS HwProject
       // Link the app
       cBinary := Iif( Empty( ::cOutName ), hb_fnameNameExt( ::aFiles[1,1] ), ::cOutName )
       cOut := Nil
+      IF hb_Ascan( hb_ATokens( ::cFlagsPrg ), "-b",,, .T. ) > 0
+         aLibs := { "hwgdebug", "hbdebug" }
+         FOR i := 1 TO Len( aLibs )
+            cLibs += " " + StrTran( ::oComp:cTmplLib, "{l}", aLibs[i] )
+         NEXT
+      ENDIF
       IF ::lGuiLib .AND. ::lHarbour
          aLibs := hb_ATokens( cLibsHwGUI, " " )
          FOR i := 1 TO Len( aLibs )
