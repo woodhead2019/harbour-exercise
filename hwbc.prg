@@ -208,7 +208,7 @@ FUNCTION Main( ... )
             NEXT
          ELSE
             c := Iif( !Empty( cSrcPath ) .AND. Empty( hb_fnameDir(c) ), cSrcPath + hb_ps() + c, c )
-            IF Empty( hb_fnameExt(c) )
+            IF Empty( hb_fnameExt( "x" + hb_fnameNameExt(c) ) )  // hb_fnameExt( ".hwprj" ) returns empty string
                IF File( c + ".hwprj" )
                   c += ".hwprj"
                ELSEIF File( c + ".prg" )
@@ -242,13 +242,16 @@ FUNCTION Main( ... )
       cLibsHwGUI := oGui:cLibs
    ENDIF
 
-   nPrj := Ascan( aFiles, {|a|Lower(hb_fnameExt(a[1]))==".hwprj"} )
-   // Lower( hb_fnameExt( aFiles[1,1] ) ) == ".hwprj" )
+   nPrj := Ascan( aFiles, {|a|Lower(hb_fnameExt("x"+hb_fnameNameExt(a[1])))==".hwprj"} )
    IF Empty( aParams ) .OR. ( lGui .AND. nPrj > 0 .AND. Len( aFiles ) == 1  )
 #ifdef __GUI
       StartGUI( Iif( Empty( aFiles ), Nil, aFiles[1,1] ) )
 #endif
    ELSEIF !Empty( aFiles )
+      IF nPrj == 0 .AND. File( hb_fnameDir(aFiles[1,1]) + ".hwprj" )
+         AAdd( aFiles, { hb_fnameDir(aFiles[1,1]) + ".hwprj", } )
+         nPrj := Len( aFiles )
+      ENDIF
       IF nPrj > 0
          IF !Empty( oPrg := HwProject():Open( aFiles[nPrj,1], oComp, aUserPar, aFiles ) )
             oPrg:Build( lClean )
@@ -284,7 +287,7 @@ STATIC FUNCTION ShowResult( cOut )
       RETURN .T.
    }
    LOCAL bSwi := {||
-      LOCAL i, j, cLastHea := "", lLastHea := .F., cc
+      LOCAL i, cLastHea := "", lLastHea := .F., cc
       lFull := !lFull
       oBtnSwi:SetText( Iif( lFull, 'Short log', 'Full log' ) )
       IF lFull
@@ -981,7 +984,7 @@ STATIC FUNCTION FindHarbour()
 
 STATIC FUNCTION ReadIni( cFile )
 
-   LOCAL cPath, hIni, aIni, arr, nSect, aSect, cTmp, i, j, key, nPos, cFam, oComp, oGui
+   LOCAL cPath, hIni, aIni, arr, nSect, aSect, cTmp, i, key, nPos, cFam, oComp, oGui
    LOCAL aEnv, aMsvc := Array(4), aEnvM
 
 #ifdef __PLATFORM__UNIX
@@ -1706,9 +1709,9 @@ CLASS HwProject
    DATA aProjects  INIT {}
 
    METHOD New( aFiles, oComp, cGtLib, cLibsDop, cLibsPath, cFlagsPrg, cFlagsC, ;
-      cOutName, cObjPath, lLib, lMake )
-   METHOD Open( xSource, oComp, aUserPar )
-   METHOD Build( lClean )
+      cOutName, cObjPath, lLib, lMake, lNoGui )
+   METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars )
+   METHOD Build( lClean, lSub )
 
 ENDCLASS
 
@@ -1779,7 +1782,7 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
 
    IF !Empty( aFiles )
       FOR i := 1 TO Len( aFiles )
-         IF !( Lower( hb_fnameExt( aFiles[i,1] ) ) == ".hwprj" )
+         IF !( Lower( hb_fnameExt( "x"+hb_fnameNameExt(aFiles[i,1]) ) ) == ".hwprj" )
             AAdd( ::aFiles, aFiles[i] )
          ENDIF
       NEXT
@@ -2007,10 +2010,10 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
 
 METHOD Build( lClean, lSub ) CLASS HwProject
 
-   LOCAL i, cCmd, cComp, cLine, cOut, cFullOut := "", lErr := .F., to, tc
+   LOCAL i, cCmd, cLine, cOut, cFullOut := "", lErr := .F., to, tc
    LOCAL cObjs := "", cFile, cExt, cBinary, cObjFile, cObjPath
    LOCAL aLibs, cLibs := "", a4Delete := {}, tStart := hb_DtoT( Date(), Seconds()-1 )
-   LOCAL aEnv, cResFile := "", cResList := ""
+   LOCAL aEnv, cResFile, cResList := ""
    LOCAL cCompPath, cCompHrbLib, cCompGuiLib
 
    ::lBuildRes := ::lGuiLib
