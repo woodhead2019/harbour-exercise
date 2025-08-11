@@ -2141,6 +2141,13 @@ METHOD Build( lClean, lSub ) CLASS HwProject
          aEnv[i,1] := ::oComp:aEnv[i,1]
          aEnv[i,2] := getenv( aEnv[i,1] )
          hb_setenv( ::oComp:aEnv[i,1], ::oComp:aEnv[i,2] )
+         IF lCreatScr
+#ifdef __PLATFORM__UNIX
+            _CreateScr( "export " + ::oComp:aEnv[i,1] + "=" + ::oComp:aEnv[i,2] )
+#else
+            _CreateScr( "set " + ::oComp:aEnv[i,1] + "=" + ::oComp:aEnv[i,2] )
+#endif
+         ENDIF
       NEXT
    ELSEIF ::oComp:family == "msvc"
       _ShowProgress( "Error: Environment variables are absent in hwbuild.ini", 1,, @cFullOut )
