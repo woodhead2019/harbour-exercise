@@ -1386,7 +1386,11 @@ STATIC FUNCTION _PrjVarsTran( aPrjVars, cLine )
 
    LOCAL i, nPos := 1, nPos2, nLen, cVar, cValue
 
+#ifdef __PLATFORM__UNIX
    IF !Empty( aPrjVars ) .AND. !lCreatScr
+#else
+   IF !Empty( aPrjVars )
+#endif
       DO WHILE ( nPos := hb_At( '$', cLine, nPos ) ) > 0
          nPos2 := nPos + 2
          nLen := Len( cLine )
@@ -1394,9 +1398,13 @@ STATIC FUNCTION _PrjVarsTran( aPrjVars, cLine )
             nPos2 ++
          ENDDO
          cVar := Substr( cLine, nPos+1, nPos2-nPos-1 )
-         IF ( i := Ascan( aPrjVars, {|a|a[1] == cVar} ) ) > 0
-            cValue := aPrjVars[i,2]
-            cLine := Left( cLine, nPos-1 ) + cValue + Substr( cLine, nPos2 )
+         IF lCreatScr
+            cLine := Left( cLine, nPos-1 ) + "%" + cVar + "%" + Substr( cLine, nPos2 )
+         ELSE
+            IF ( i := Ascan( aPrjVars, {|a|a[1] == cVar} ) ) > 0
+               cValue := aPrjVars[i,2]
+               cLine := Left( cLine, nPos-1 ) + cValue + Substr( cLine, nPos2 )
+            ENDIF
          ENDIF
          nPos ++
       ENDDO
@@ -1845,9 +1853,9 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
                AAdd( aPrjVars, { Substr( cTmp, 2 ), AllTrim( Substr( cLine, nPos + 1 ) ) } )
                IF lCreatScr
 #ifdef __PLATFORM__UNIX
-                  _CreateScr( "export " + cTmp + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
+                  _CreateScr( "export " + Substr(cTmp,2) + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
 #else
-                  _CreateScr( "set " + cTmp + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
+                  _CreateScr( "set " + Substr(cTmp,2) + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
 #endif
                ENDIF
             ELSEIF ( cTmp := Lower( cTmp ) ) == "srcpath"
