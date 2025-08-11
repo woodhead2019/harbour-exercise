@@ -93,6 +93,7 @@ STATIC cLibsHwGUI := ""
 STATIC oFontMain, oDlgBar
 #endif
 STATIC cFontMain := "", lProgressOn := .T., cExtView := ""
+STATIC lCreatScr
 
 FUNCTION Main( ... )
 
@@ -102,6 +103,7 @@ FUNCTION Main( ... )
    LOCAL cSrcPath, cObjPath, cOutName, cFlagsPrg, cFlagsC, aUserPar := {}
    LOCAL cIniName := "hwbuild.ini", cMsgWrong := "Wrong command line option"
 
+   lCreatScr := .F.
    FOR i := 1 TO Len( aParams )
       IF ( j := Left( aParams[i],1 ) ) == "-" .AND. Left( c := Substr( aParams[i],2 ), 1 ) == "i"
          IF '=' $ c
@@ -191,6 +193,8 @@ FUNCTION Main( ... )
             ENDIF
          ELSEIF Left( c,1 ) == "{"
             Aadd( aUserPar, Iif( (j := At("}",c))==0, Substr( c,2 ), Substr( c, 2, j-2 ) ) )
+         ELSEIF c == "creatscr"
+            lCreatScr := .T.
          ELSE
             _MsgStop( c, cMsgWrong )
             lErr := .T.
@@ -1381,7 +1385,7 @@ STATIC FUNCTION _PrjVarsTran( aPrjVars, cLine )
 
    LOCAL i, nPos := 1, nPos2, nLen, cVar, cValue
 
-   IF !Empty( aPrjVars )
+   IF !Empty( aPrjVars ) .AND. !lCreatScr
       DO WHILE ( nPos := hb_At( '$', cLine, nPos ) ) > 0
          nPos2 := nPos + 2
          nLen := Len( cLine )
@@ -1515,6 +1519,17 @@ STATIC FUNCTION _CurrPath()
 #endif
 
    RETURN cPrefix + CurDir() + hb_ps()
+
+STATIC FUNCTION _CreateScr( cLine )
+
+   STATIC s := ""
+
+   IF Empty( cLine )
+      hb_MemoWrit( Iif( hb_Version(20), "_hwprj.sh", "_hwprj.bat" ), s )
+   ELSE
+      s += cLine + hb_eol()
+   ENDIF
+   RETURN Nil
 
 STATIC FUNCTION _IniRead( cFileName )
 
@@ -1778,6 +1793,13 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
    IF Empty( aPrjVars )
       _MsgInfo( "User params: " + hb_ValToExp( aUserPar )  + hb_eol() )
       AAdd( aPrjVars, {"COMPILER",oComp:id} )
+      IF lCreatScr
+#ifdef __PLATFORM__UNIX
+        _CreateScr( "export COMPILER=" + oComp:id )
+#else
+        _CreateScr( "set COMPILER=" + oComp:id )
+#endif
+      ENDIF
    ENDIF
 
    IF !Empty( aFiles )
@@ -1820,6 +1842,13 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
          IF ( nPos := At( "=", cLine ) ) > 0 .AND. !( " " $ (cTmp := Trim( Left( cLine, nPos-1 ) )) )
             IF Left( cTmp,1 ) == "$"
                AAdd( aPrjVars, { Substr( cTmp, 2 ), AllTrim( Substr( cLine, nPos + 1 ) ) } )
+               IF lCreatScr
+#ifdef __PLATFORM__UNIX
+                  _CreateScr( "export " + cTmp + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
+#else
+                  _CreateScr( "set " + cTmp + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
+#endif
+               ENDIF
             ELSEIF ( cTmp := Lower( cTmp ) ) == "srcpath"
                cSrcPath := _PrjVarsTran( aPrjVars, _DropSlash( Substr( cLine, nPos + 1 ) ) + hb_ps() )
 
@@ -2040,7 +2069,7 @@ METHOD Build( lClean, lSub ) CLASS HwProject
    ENDIF
 
    FOR i := 1 TO Len( ::aProjects )
-      cFullOut += ::aProjects[i]:Build( lClean, .T. )
+      cFullOut += ::aProjects[i]:Build( lClean, .T., lCreatScr )
    NEXT
    IF Empty( ::aFiles )
       IF !Empty( cFullOut )
@@ -2133,19 +2162,22 @@ METHOD Build( lClean, lSub ) CLASS HwProject
          ELSE
             cLine := cCmd + Iif( Empty( ::aFiles[i,2] ), "", " " + ::aFiles[i,2] ) + " " + cFile
 
-            _ShowProgress( "> " + cLine, 1, hb_fnameNameExt( cFile ), @cFullOut )
-            _RunApp( cLine, @cOut )
-            IF Valtype( cOut ) != "C"
-               _ShowProgress( "Error: the Harbour compiler didn't start", 1,, @cFullOut )
-               lErr := .T.
-               EXIT
+            IF lCreatScr
+               _CreateScr( cLine )
+            ELSE
+               _ShowProgress( "> " + cLine, 1, hb_fnameNameExt( cFile ), @cFullOut )
+               _RunApp( cLine, @cOut )
+               IF Valtype( cOut ) != "C"
+                  _ShowProgress( "Error: the Harbour compiler didn't start", 1,, @cFullOut )
+                  lErr := .T.
+                  EXIT
+               ENDIF
+               _ShowProgress( cOut, 1,, @cFullOut )
+               IF "Error" $ cOut
+                  lErr := .T.
+                  EXIT
+               ENDIF
             ENDIF
-            _ShowProgress( cOut, 1,, @cFullOut )
-            IF "Error" $ cOut
-               lErr := .T.
-               EXIT
-            ENDIF
-
          ENDIF
          ::aFiles[i,1] := cObjFile
          ::aFiles[i,2] := Nil
@@ -2166,7 +2198,7 @@ METHOD Build( lClean, lSub ) CLASS HwProject
          cFile := _PS( ::aFiles[i,1] )
          IF ( cExt := Lower( hb_fnameExt( cFile )) ) == ".c" .OR. cExt == ".cpp"
             cObjFile := cObjPath + hb_fnameName( cFile ) + ::oComp:cObjExt
-            IF ::lMake .AND. File( cObjFile ) .AND. hb_vfTimeGet( cObjFile, @to ) .AND. ;
+            IF ::lMake .AND. !lCreatScr .AND. File( cObjFile ) .AND. hb_vfTimeGet( cObjFile, @to ) .AND. ;
                hb_vfTimeGet( cFile, @tc ) .AND. to >= tc
             ELSE
                cLine := StrTran( StrTran( StrTran( cCmd, "{obj}", cObjFile ), ;
@@ -2175,19 +2207,22 @@ METHOD Build( lClean, lSub ) CLASS HwProject
                   Iif( Empty( ::cFlagsC ), "", " " + ::cFlagsC ) + ;
                   Iif( Empty( ::aFiles[i,2] ), "", " " + ::aFiles[i,2] ) )
 
-               _ShowProgress( "> " + cLine, 1, hb_fnameNameExt(cFile), @cFullOut )
-               _RunApp( cLine, @cOut )
-               IF Valtype( cOut ) != "C"
-                  _ShowProgress( "Error: the compiler didn't start", 1,, @cFullOut )
-                  lErr := .T.
-                  EXIT
+               IF lCreatScr
+                  _CreateScr( cLine )
+               ELSE
+                  _ShowProgress( "> " + cLine, 1, hb_fnameNameExt(cFile), @cFullOut )
+                  _RunApp( cLine, @cOut )
+                  IF Valtype( cOut ) != "C"
+                     _ShowProgress( "Error: the compiler didn't start", 1,, @cFullOut )
+                     lErr := .T.
+                     EXIT
+                  ENDIF
+                  _ShowProgress( cOut, 1,, @cFullOut )
+                  IF ::lExitOnErr .AND. _HasError( cOut )
+                     lErr := .T.
+                     EXIT
+                  ENDIF
                ENDIF
-               _ShowProgress( cOut, 1,, @cFullOut )
-               IF ::lExitOnErr .AND. _HasError( cOut )
-                  lErr := .T.
-                  EXIT
-               ENDIF
-
             ENDIF
             cObjs += " " + cObjFile
             IF !::lMake
@@ -2211,16 +2246,20 @@ METHOD Build( lClean, lSub ) CLASS HwProject
          hb_MemoWrit( "hwgui_xp.rc", cLine )
          cLine := StrTran( StrTran( StrTran( ::oComp:cCmdRes, "{path}", cCompPath ), ;
          "{src}", "hwgui_xp.rc" ), "{out}", "hwgui_xp" )
-         _ShowProgress( "> " + cLine, 1,, @cFullOut)
-         _RunApp( cLine, @cOut )
-         IF Valtype( cOut ) == "C"
-            _ShowProgress( cOut, 1,, @cFullOut )
-            AAdd( a4Delete, "hwgui_xp.rc" )
-            AAdd( a4Delete, cResFile )
-            cResList += cResFile
+         IF lCreatScr
+            _CreateScr( cLine )
          ELSE
-            _ShowProgress( "Error: the resource compiler didn't start", 1,, @cFullOut )
-            lErr := .T.
+            _ShowProgress( "> " + cLine, 1,, @cFullOut)
+            _RunApp( cLine, @cOut )
+            IF Valtype( cOut ) == "C"
+               _ShowProgress( cOut, 1,, @cFullOut )
+               AAdd( a4Delete, "hwgui_xp.rc" )
+               AAdd( a4Delete, cResFile )
+               cResList += cResFile
+            ELSE
+               _ShowProgress( "Error: the resource compiler didn't start", 1,, @cFullOut )
+               lErr := .T.
+            ENDIF
          ENDIF
       ENDIF
    ENDIF
@@ -2233,17 +2272,21 @@ METHOD Build( lClean, lSub ) CLASS HwProject
             cLine := StrTran( StrTran( StrTran( ::oComp:cCmdRes, "{path}", cCompPath ), ;
                "{src}", cFile ), "{out}", hb_fnameName( cFile ) + ;
                Iif( ::oComp:family == "mingw", "_rc", "" ) )
-            _ShowProgress( "> " + cLine, 1,, @cFullOut)
-            _RunApp( cLine, @cOut )
-            IF Valtype( cOut ) == "C"
-               _ShowProgress( cOut, 1,, @cFullOut )
-               cResFile := hb_fnameName( cFile ) + Iif( ::oComp:family == "mingw", "_rc.o", ".res" )
-               AAdd( a4Delete, cResFile )
-               cResList += " " + cResFile
+            IF lCreatScr
+               _CreateScr( cLine )
             ELSE
-              _ShowProgress( "Error: the resource compiler didn't start", 1,, @cFullOut )
-              lErr := .T.
-              EXIT
+               _ShowProgress( "> " + cLine, 1,, @cFullOut)
+               _RunApp( cLine, @cOut )
+               IF Valtype( cOut ) == "C"
+                  _ShowProgress( cOut, 1,, @cFullOut )
+                  cResFile := hb_fnameName( cFile ) + Iif( ::oComp:family == "mingw", "_rc.o", ".res" )
+                  AAdd( a4Delete, cResFile )
+                  cResList += " " + cResFile
+               ELSE
+                 _ShowProgress( "Error: the resource compiler didn't start", 1,, @cFullOut )
+                 lErr := .T.
+                 EXIT
+               ENDIF
             ENDIF
          ENDIF
       NEXT
@@ -2304,16 +2347,20 @@ METHOD Build( lClean, lSub ) CLASS HwProject
          ENDIF
       ENDIF
 
-      _ShowProgress( "> " + cLine, 1, hb_fnameNameExt(cBinary), @cFullOut )
-      FErase( cBinary )
-      _RunApp( cLine, @cOut )
-      IF Valtype( cOut ) == "C"
-         _ShowProgress( cOut, 1,, @cFullOut )
-      ENDIF
+      IF lCreatScr
+         _CreateScr( cLine )
+      ELSE
+         _ShowProgress( "> " + cLine, 1, hb_fnameNameExt(cBinary), @cFullOut )
+         FErase( cBinary )
+         _RunApp( cLine, @cOut )
+         IF Valtype( cOut ) == "C"
+            _ShowProgress( cOut, 1,, @cFullOut )
+         ENDIF
 
-      cLine := Iif( File( cBinary ) .AND. hb_vfTimeGet( cBinary, @to ) .AND. to > tStart, ;
-         cBinary + " " + "created successfully!", "Error. Can't create " + cBinary )
-      _ShowProgress( cLine, 2,, @cFullOut )
+         cLine := Iif( File( cBinary ) .AND. hb_vfTimeGet( cBinary, @to ) .AND. to > tStart, ;
+            cBinary + " " + "created successfully!", "Error. Can't create " + cBinary )
+         _ShowProgress( cLine, 2,, @cFullOut )
+      ENDIF
    ELSE
       _ShowProgress( "Error...", 2,, @cFullOut )
    ENDIF
@@ -2324,8 +2371,12 @@ METHOD Build( lClean, lSub ) CLASS HwProject
       NEXT
    ENDIF
 
-   IF Empty( lSub )
-      ShowResult( cFullOut )
+   IF lCreatScr
+      _CreateScr()
+   ELSE
+      IF Empty( lSub )
+         ShowResult( cFullOut )
+      ENDIF
    ENDIF
    FOR i := 1 TO Len( a4Delete )
       FErase( a4Delete[i] )
