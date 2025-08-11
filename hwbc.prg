@@ -11,7 +11,7 @@
 #endif
 #include "hbclass.ch"
 
-#define HWB_VERSION  "1.17"
+#define HWB_VERSION  "1.18"
 
 #define COMP_ID      1
 #define COMP_EXE     2
@@ -1853,7 +1853,7 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
                AAdd( aPrjVars, { Substr( cTmp, 2 ), AllTrim( Substr( cLine, nPos + 1 ) ) } )
                IF lCreatScr
 #ifdef __PLATFORM__UNIX
-                  _CreateScr( "export " + Substr(cTmp,2) + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
+                  _CreateScr( "export " + Substr(cTmp,2) + '="' + AllTrim( Substr( cLine, nPos + 1 ) )  + '"')
 #else
                   _CreateScr( "set " + Substr(cTmp,2) + "=" + AllTrim( Substr( cLine, nPos + 1 ) ) )
 #endif
