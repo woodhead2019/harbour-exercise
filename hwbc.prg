@@ -75,6 +75,7 @@ STATIC aHelp := { "hwbc <files>  [options...]", ;
   " -l<libraries>, -libs=<libraries>   a list of additional libraries", ;
   " -sp<path>, -srcpath=<path>         a path to source files", ;
   " -o<name>, -out=<name>              a path and name of output file", ;
+  " -creatscr         create build script (bat or sh) only", ;
   " @<file>           include file", ;
   " -i<name>, -ini=<name>              a name of ini file" }
 
