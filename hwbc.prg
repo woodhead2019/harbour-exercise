@@ -1529,12 +1529,20 @@ STATIC FUNCTION _CurrPath()
 
    RETURN cPrefix + CurDir() + hb_ps()
 
+#define HB_FA_XUSR    0x00400000  /* 0100 execute/search by owner */
+
 STATIC FUNCTION _CreateScr( cLine )
 
+   LOCAL cFile := Iif( hb_Version(20), "_hwprj.sh", "_hwprj.bat" ), nAttr
    STATIC s := ""
 
    IF Empty( cLine )
-      hb_MemoWrit( Iif( hb_Version(20), "_hwprj.sh", "_hwprj.bat" ), s )
+      hb_MemoWrit( cFile, s )
+      IF hb_Version(20)
+         IF hb_fGetAttr( cFile, @nAttr )
+            hb_fSetAttr( cFile, hb_BitOr( nAttr, HB_FA_XUSR ) )
+         ENDIF
+      ENDIF
    ELSE
       s += cLine + hb_eol()
    ENDIF

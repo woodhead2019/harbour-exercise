@@ -44,6 +44,8 @@ Usage:
 
    -i<name>, -ini=<name>              a name of ini file
 
+   -creatscr         Create build script, .bat or .sh
+
 
 For more information, see:
 
