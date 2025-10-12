@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+//set -e
 
 # 0. 自动 stash 本地未提交改动
 git diff-index --quiet HEAD || git stash push -m "auto-stash before sync"
