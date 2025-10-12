@@ -1,0 +1,1056 @@
+CLLOG 使用指南：安装和初步步骤
+_____________________________
+
+版权所有 (c) 1997-2023 DF7BE Wilfried Brunken
+创意共享许可 CC BY-SA 2.0 de（适用于此文件）
+
+  $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+
+内容
+~~~~~~
+
+1. 一般信息
+1.1 许可证
+1.2 错误报告
+2. 安装
+2.1 Windows
+2.1.1 使用安装程序安装
+2.1.2 从便携版安装
+2.2 从源代码安装应用程序
+2.2.1 设置开发环境
+2.2.2.1 Windows
+2.3 LINUX
+2.4 MS-DOS 下的 CLLOG
+3. CLLOG 的初步步骤
+4. 程序挂起/错误堆栈和错误消息
+5. 数据导入
+6. 数据备份
+7. 程序列表
+8. 使用 Borland C 编译 CLLOG
+
+附录：
+附录 1：互联网链接和文献出处
+附录 2：64位版本
+附录 3：Windows 11 的额外提示
+
+
+1. 一般信息
+_________________
+
+==========================================================================
+注意：
+目前仅实现了计划中的一小部分功能。
+许多附加功能暂时只能作为外部控制台程序使用，但它们将在后面集成到主程序 "logw.exe" 中。例如，与 eQSL 的接口就是这样。
+这一版本的程序可以进行基本的连接数据管理和采集。
+如果您仍然需要手工填写 QSL 卡片，可以记录它们的收发情况。
+
+手册也在制作中，将尽快提供。
+如果您遇到问题，可以尝试使用内置的帮助功能获取相应指导。但并非所有主题都已涵盖，我们将尽快补充缺失的主题。
+
+请定期查看 Sourceforge.net 上的项目页面，"Code" 部分，"trunk/doc" 目录，看是否有新的或更新的文件上传。
+
+==========================================================================
+
+所需软件的下载地址。请注意，在访问互联网时查看 "liesmich.txt" 中的免责声明！
+
+对于 Windows 版本的 "setup.exe" 和 "*portable*"，您不需要任何额外的软件，因为所需的内容已经包含在安装包中。
+
+[1] Sourceforge 上的 CLLOG 项目页面：
+https://sourceforge.net/projects/cllog/
+
+    检出命令如下（匿名）：
+
+# 仅检出 "trunk" 分支
+mkdir -p ~/svnwork/cllog/cllog-code
+cd ~/svnwork/cllog/cllog-code
+svn checkout https://svn.code.sf.net/p/cllog/code/trunk  trunk
+
+或者
+
+# 检出整个代码库
+mkdir -p ~/svnwork/cllog
+cd ~/svnwork/cllog
+svn checkout https://svn.code.sf.net/p/cllog/code/  cllog-code
+
+这些命令用于从 Sourceforge 的版本控制系统中检出 CLLOG 项目的源代码。"trunk" 通常指的是主开发分支，包含了项目的最新开发状态。如果您需要整个代码库，包括所有分支和标签，可以使用第二个命令检出。这将允许您访问项目的所有历史版本和开发分支。
+
+[2] Harbour 项目在 GITHUB 的页面：
+
+https://harbour.github.io/ 
+
+源代码仓库：
+https://github.com/harbour/core/ 
+
+要下载代码快照作为 ZIP 文件，请按照以下步骤操作：
+- 点击 "Code" 标签页，选择 "Master" 分支。
+- 点击 "Clone or download"，然后选择 "Download ZIP"。
+
+[3] HWGUI 项目在 Sourceforge 的页面：
+
+https://sourceforge.net/projects/hwgui/ 
+
+[4] Windows 上的 GNU-make
+（LINUX 系统自带）
+需要 3.81 或更高版本。
+
+https://gnuwin32.sourceforge.net/packages/make.htm
+
+源代码：
+ftp.gnu.org/gnu/make
+
+由于网络原因，我目前无法成功解析上述网页的内容。这可能是由于链接本身的问题，或者是网络连接的问题。请您检查网页链接的合法性，并在网络稳定的情况下适当重试。如果链接正确且网络状况良好，但问题仍然存在，可能是暂时的服务器问题，建议稍后再试。如果您有其他问题或需要进一步的帮助，请随时告诉我。
+
+1.1 许可证
+__________
+
+适用于程序文本：
+
+版权所有 (c) 1997-2023 DF7BE Wilfried Brunken
+详细信息请查看 "Lizenz.txt" 文件
+包含对个别文件的例外、免责声明及其他条款。
+不提供任何形式的保证！
+
+1.2 错误报告
+_________________
+
+如果您发现程序错误，请将错误报告及附件作为单个 ZIP 文件通过电子邮件发送给我们，或在我们的项目页面 [1] 上创建一个新的工单。
+
+- 错误是何时以及如何发生的？
+- 提供确切的版本说明
+- 如果出现，错误堆栈跟踪
+- 屏幕截图，格式为 jpeg、png 或 bmp，如果可能，也以文本形式提供（针对 Harbour 控制台版本或 MS-DOS 版本）
+- 运行 "what.exe" 程序的输出 *
+- 如果存在：Error.log 文件
+- HWGUI 版本：在主菜单 "?" ==> "Über" 和 "Debug-Informationen"（"About" and "Debug information"）中的输出。
+- Harbour 控制台版本："X ... Extras"  ==> "U ... über CLLOG" 和 "I ... Debug(I)nfo"
+  ("X ... Extra menus" ==> "A ... About CLLOG" and "I ... Debug-(I)nfo")。
+
+请将描述性文本作为普通文本文件或 PDF 格式提供。
+
+*) "what.exe" 的调用和示例输出
+选择导致错误的 "logw.exe" 程序。
+
+what.exe logw.exe
+logw.exe:
+        $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+        $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+        CLLOG 版本 3.0.0alpha3 HWGUI dev (c) DF7BE
+        构建日期：16.04.2022 logw.prg
+        $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+        FLAGSHIP.PRG 11.01.2015
+        $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+        CODEPAGE.PRG 12.07.2020
+        $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+        ATOOLS.PRG 14.04.2022
+        $Id: Schnellanleitung.txt 153 2023-10-20 17:32:24Z df7be $
+        ...
+
+如果终端/控制台不支持滚动模式，
+可以将输出重定向到文件中，例如：
+what.exe logw.exe > watout.txt
+
+2. 安装
+_______________
+
+  
+2.1 Windows
+===========
+（目前仍是32位，但在64位系统下也能运行）
+
+2.1.1 使用安装程序安装
+_____________________________
+
+<进行中>
+
+可以在 CLLOG 项目页面的 [1] "Files" 部分找到安装文件。
+
+直接运行 "setup.exe" 文件。
+
+回答以下问题：
+<进行中>
+- 语言：德语或英语
+  （根据当前系统设置默认选择）
+- 呼号
+  （注意：如果需要为多个呼号安装，必须多次运行安装程序，例如家庭或俱乐部电台）
+
+继续进行 "CLLOG 的初步步骤"。
+
+2.1.2 从便携版安装
+____________________________________________
+
+（在第一个安装程序版本创建之前，推荐使用这种方法）。
+
+在项目页面（"Files" 部分，"CLLOG" 目录）提供了一个包含所有文件的压缩包供下载。
+
+CLLOG 可以通过一个批处理文件进行安装或更新。
+
+- 将压缩包解压到任意目录（例如 C:\CLLOG）。
+  我们推荐使用 "7-Zip" 进行解压。
+- 打开命令提示符（CMD）。
+- 切换到解压后的根目录。
+- 进入 "src" 子目录。
+- 使用以下命令启动安装：
+  install.bat <目录>
+  <目录>：例如：C:\LOGBUCH\DF7BE
+  如果需要为其他呼号的日志簿安装，重复此步骤。
+  如果指定的 <目录> 已存在安装，则会进行更新。
+  重要！
+  只有在指定的安装路径中不存在的最后一个目录会被创建。
+  所有上层目录必须手动创建（使用 Windows 资源管理器或 mkdir/md 命令）。
+
+  警告！
+  在进行更新安装之前，请先备份数据。
+
+  可选地，可以在桌面创建快捷方式，具体指导稍后提供。
+
+  继续进行 "CLLOG 的初步步骤"。
+
+2.2 从源代码安装应用程序
+_________________________________________________
+
+2.2.1 设置开发环境
+-------------------------------------
+从源代码安装时需要设置开发环境。
+
+2.2.2.1 Windows
+===============
+
+（在 Windows 10 64 位下测试）
+
+如果要从源代码编译应用程序，则需要按照以下说明操作。
+
+注意：
+环境变量 PATH 中的路径也会被用来搜索 DLL 文件！
+
+先决条件：
+------------
+
+ 
+ - MinGW 和 Harbour 编译器：
+   1.) 使用 Harbour Mini-Gui (HMG) 版本 3.x.x 或更高版本
+       （包含 MinGW 编译器和 Harbour）。
+       通常包含的 Harbour 版本较旧，因此只使用 MinGW (gcc) 编译器及其附加包。
+       HMG 安装简单，包含所有 MinGW 所需的内容。
+       例如，将 HMG 安装在 C:\HMG.3.3.1（通过 SETUP.EXE）
+       或者自行组装 gcc 编译器（MINGW）。
+       此外，可以从 CLLOG 网站 [1] 下载 MinGW、Harbour 和 HWGUI 的预编译版本，
+       这是推荐的做法！
+   
+   2.) Harbour 编译器：
+      从源代码自行编译的 Harbour 编译器，版本 3.x.x 或更高版本。
+      如果没有其他说明，从 [2] 下载当前的代码快照。
+      （需要提供 DE858 代码页以支持欧元符号）。
+
+ 
+ - 安装 GNU-Make 工具。
+
+   获取源请参见 [4]。
+   
+   将以下内容从
+    make-3.81-bin.zip  
+    make-3.81-dep.zip
+    解压到 C:\make 目录。
+
+   需要创建以下目录：
+     bin
+     contrib
+     man
+     manifest
+     share
+
+ - 使用 7-Zip 或类似程序作为归档工具
+   （7-Zip 拥有自己的格式，并且可以处理 ZIP 文件以外的 UNIX 归档文件）
+  
+ 可选（尤其是开发者的好选择）：
+  
+ - 使用优秀的文本编辑器，例如 Notepad++，
+  它也支持 LINUX 和 MacOS 的行结束符以及 UTF-8 字符编码。
+   
+  为 Harbour 程序添加语法高亮显示功能：
+  在互联网上搜索 "xbase.xml"。
+  （搜索词："xbase.xml notepad++"）
+  在 Notepad++ 的安装目录中应该有 "userDefineLang.xml" 文件。
+  使用文本编辑器（即使是 Notepad++）将 xbase.xml 的内容复制到此文件中，
+  保留原始文件的最后一行 "</NotepadPlus>"。
+
+  重新启动 Notepad++ 后，应该在 "Language" 菜单下找到 "Harbour" 类型的语法，以便为源代码添加彩色语法高亮显示。
+   
+   
+ - WinMerge（比较和合并不同的源代码）
+
+请先安装这些程序。
+
+集成 HAMLIB
+==============
+<进行中>
+HAMLIB 库允许通过 CAT 接口访问收发信机。
+CLLOG 仅从收发信机查询以下值：频率和操作模式。
+
+从 [5] 处下载。
+为了访问串行接口，您还需要从 [6] 处下载 "libUSB" 库。
+
+HAMLIB 的概念是，在 LINUX 上为 Windows / MinGW 进行交叉编译。
+稍后将简要描述此过程。
+
+由于不是所有无线电爱好者都有 LINUX 计算机，可以从 HAMLIB 网站 [5] 下载一个现成的压缩包。
+例如，文件名可能是：
+"hamlib-w32-4.4.zip"
+
+代码快照通常具有以下文件名：
+"Hamlib-master.zip"。
+一个官方（稳定）版本可能有如下文件名：
+"hamlib-4.4.tar.gz"。
+
+在 Ubuntu LINUX 20 上进行交叉编译的步骤：
+
+1.) 作为管理员安装以下软件包：
+```
+sudo apt-get install mingw-w64 
+sudo apt-get install zip             
+sudo apt-get install tofrodos    
+sudo apt-get install groff   
+```
+
+2.) 可以在任何用户账号下进行编译。
+在用户的 HOME 目录中手动创建一个目录：
+```
+mkdir builds
+```
+在那里解压代码快照的压缩包。
+目录结构大致如下：
+
+（此处省略了目录结构的详细列表）
+
+3.) 在 HAMLIB 的目录结构中解压 USB 库：
+
+4.) 开始生成发行版：
+```
+scripts/build-w32.sh hamlib-4.4
+```
+
+请注意，上述步骤提供了在 LINUX 环境下为 Windows 系统交叉编译 HAMLIB 库的大致指南。具体的命令和步骤可能会根据您使用的 LINUX 发行版和版本有所不同。如果您需要更详细的指导或遇到问题，请告知，我会尽力提供帮助。
+
+在 Windows 10 上使用 MinGW32 集成 HAMLIB：
+----------------------------------------
+
+"hamlib-w32-4.4.zip"
+解压缩后，目录结构大致如下：
+AUTHORS.txt
+<DIR>          bin
+ChangeLog.txt
+COPYING.LIB.txt
+COPYING.txt
+<DIR>          doc
+<DIR>          include
+<DIR>          lib
+LICENSE.txt
+README.betatester.txt
+README.txt
+README.w32-b
+
+准备步骤
+--------------
+
+- 从压缩包中提取 CLLOG 源代码：
+  在压缩程序中选择相应的选项，以确保安装目录为
+     C:\CLLOG
+  在此目录下，您将找到以下子目录：
+    src
+    sh
+    bin
+    dokdxcc
+  等等。
+  但您也可以选择其他路径，或者直接从 Subversion 版本库中检出。
+  有关说明，请参见 [1]，将 LINUX 路径相应调整为 Windows 路径。
+   
+- 在控制台窗口（命令提示符）中执行以下步骤：
+   
+- 设置环境变量路径以用于以下步骤：
+    cd C:\CLLOG\src
+    pfad.bat
+   （这样您就不需要对系统进行更改）。
+  根据您的安装情况，如有需要请调整 pfad.bat。
+
+- 检查是否可以访问 MinGW 的 C 编译器。
+   gcc --version
+   gcc (GCC) 4.6.2
+   Copyright (C) 2011 Free Software Foundation, Inc.
+   This is free software; see the source for copying conditions.  There is NO
+   warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   
+- 检查 make 工具是否可用：
+   make --version
+   GNU Make 3.81
+   Copyright (C) 2006  Free Software Foundation, Inc.
+   This is free software; see the source for copying conditions.
+   There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+   PARTICULAR PURPOSE.
+
+   This program built for i386-pc-mingw32   
+
+   mingw32-make.exe
+   预期输出：
+   mingw32-make.exe: *** No targets specified and no makefile found.  Stop. 
+
+   如果无法访问该工具，Windows 将显示以下消息：
+   命令 "mingw32-make.exe" 要么拼写错误，要么找不到。
+
+从源代码安装 Harbour
+----------------------------------
+
+注意！必须先运行 "pfad.bat" 脚本！
+
+- 解压 Harbour 源代码：
+  设置压缩程序，将内容解压到以下目录：
+   C:\harbour\core-master
+  如果需要安装到其他位置，可以适当调整 pfad.bat。
+
+- 在设置好路径的环境命令提示符中启动构建过程，使用命令：
+   make
+
+从源代码安装 HWGUI
+--------------------------------
+
+注意！必须先运行 "pfad.bat" 脚本！
+
+cd C:\
+mkdir hwgui 
+
+cd C:\hwgui
+mkdir hwgui
+
+cd hwgui （基本目录 C:\hwgui\hwgui）
+==> C:\hwgui\hwgui 是 HWGUI 的安装目录
+从这里开始是安装的基本目录：
+ bin
+ contrib
+ doc
+ image
+ include
+ lib
+ obj
+ samples
+ source
+ test
+ utils
+
+（可选）为 HWGUI 打补丁：
+从 CLLOG 项目页面 [1] 获取当前的补丁状态
+==> 标签页 (Tab) "Files"，目录 "HWGUI-Patch"。
+只有在提供补丁时才需要。
+
+安装说明在 "install.txt" 文件中
+
+执行：
+makemngw.bat
+
+检查 "lib" 目录下是否创建了以下 4 个文件：
+libhbxml.a
+libhwgdebug.a
+libhwgui.a
+libprocmisc.a
+
+编译示例 "a"：
+
+cd C:\hwgui\hwgui\samples
+
+如果需要，根据您的安装情况调整 "bldmingw.bat" 脚本。
+
+运行 bldmingw.bat a
+将生成 "a.exe"，运行并测试。
+==> 例如 File/Open ==> 打开 "sample.dbf"
+
+如果程序能够顺利启动，那么 HWGUI 的创建就完成了。
+
+现在可以创建 CLLOG 了。
+
+创建 CLLOG
+---------------
+
+注意！必须先运行 "pfad.bat" 脚本！
+
+调用脚本
+
+makeall.bat
+
+将编译所有程序，并将它们移动到编译器环境的 bin 目录中。
+
+使用以下命令检查编译情况：
+   comcheck.bat
+   ...
+   编译 Harbour 和 HWGUI 完成
+
+调用 CLLOG 安装脚本：
+
+install.bat c:\xyz
+
+在 c:\xyz 处安装新的 CLLOG 实例
+创建新的 CLLOG 实例
+按下任意键 ...
+
+按 1 或 2 选择语言
+1 - 英语
+2 - 德语
+3 - 终止安装
+ECHO 关闭（OFF）。
+输入 1、2 或 3，然后按回车：
+
+输入 2 选择德语设置。
+
+更新现有实例：
+    ./install.bat <path>
+    调用的语法与新安装相同，但不会覆盖用户可能已编辑的文件。
+    这些文件将由脚本相应报告。
+
+在桌面上创建快捷方式
+-----------------------------------
+
+说明适用于 Windows 10。
+对于使用安装程序的情况，此步骤不适用。
+
+在桌面上：
+右键单击：新建 ==> 快捷方式
+
+在打开的文件浏览器中找到 "logw.exe" 的存放位置。
+
+点击 "Next" 按钮
+
+为快捷方式输入一个名称：
+  日志簿 <呼号>
+
+点击：完成按钮
+
+如需要为其他日志簿重复此操作。
+
+对于控制台应用程序，需要手动补充命令行：
+ 
+  例如：
+   %windir%\system32\cmd.exe /c log
+
+使用 Borland C 编译 CLLOG
+----------------------------------
+
+参见专门部分：
+"8. 使用 Borland C 编译 CLLOG"。
+
+基本上仍然遵循上述顺序。
+
+2.3 LINUX
+=========
+
+您需要以下组件：
+
+- 从 [2] 处获取的 Harbour 编译器源代码，版本 3.x.x（2022年5月19日的代码快照）
+- 从 [3] 处获取的 HWGUI 源代码（与2022年5月19日的 HWGUI 代码快照一起测试）
+- 从 [1] 处获取的 CLLOG 源代码
+
+如果没有特别说明，请暂时使用最新的代码快照！（"Code" 标签）
+
+以下软件包需要以管理员身份预先安装：
+（请记住，只有管理员才能安装软件包）
+
+对于 CLLOG 必需的（在 install.sh 对话框中）：
+```bash
+sudo apt-get install dialog
+```
+
+对于 LinuxMINT：
+```bash
+sudo apt-get install build-essential linux-headers-generic dkms
+sudo apt-get install libgtk2.0-dev
+```
+
+对于 Ubuntu 18：
+```bash
+sudo apt-get install linux-headers-generic
+sudo apt-get install libgtk2.0-dev
+```
+
+对于 Ubuntu 20.04.2.0 LTS：
+```bash
+sudo apt-get install linux-headers-generic
+sudo apt-get update -y
+```
+在某些情况下，安装 GTK2 软件包可能需要安装介质，通过在安装过程中按 `<ENTER>` 键确认挂载：
+```bash
+sudo apt-get install -y libgtk2.0-dev
+```
+
+```bash
+sudo apt install wmctrl  (可选)
+```
+
+如果在启动 HWGUI 应用程序后出现以下消息：
+`Failed to load module "canberra-gtk-module"`，则安装相应的软件包：
+```bash
+sudo apt-get install libcanberra-gtk-module libcanberra-gtk3-module
+```
+
+对于所有发行版（解决依赖问题），如果需要，可以安装：
+```bash
+sudo apt-get install libxmu-dev libxaw7-dev libxt-dev
+```
+
+为了避免 Gtk 警告 "Unable to locate theme engine in module_path: "adwaita"，请安装以下软件包：
+```bash
+sudo apt-get install gnome-themes-standard
+```
+这是设置进度条（progress bars）焦点所必需的，请参阅 HWGUI 示例程序（sample program）"samples/gtk_samples/progbars.prg"。
+
+为了提高安全性，我们建议以“非 root”用户身份安装 Harbour 和 HWGUI（请尽可能总是使用最新的 Harbour 和 HWGUI 代码快照）。
+
+为了避免 Gtk 警告 "Unable to locate theme engine in module_path: "adwaita"，请安装以下软件包：
+```bash
+sudo apt-get install gnome-themes-standard
+```
+
++-----------------------------------------------------------------------------+
+! 如果需要有关附加软件包安装的更多信息，请查阅 Harbour 和 HWGUI 项目页面上的相应指南。
+! 特别是对于 Ubuntu LINUX 22.04 TLS，有更详细的指南。
++-----------------------------------------------------------------------------+
+
+可选：
+```bash
+sudo apt-get install gedit
+```
+
+（文本编辑器，可以替代 xed）
+```bash
+sudo apt-get subversion
+```
+
+如果在编译过程中遇到问题，可能还需要安装以下软件包：
+```bash
+sudo apt-get install libxmu-dev libxaw7-dev libxt-dev
+```
+然后重新启动编译过程（如果使用 "make"，则编译将从中断处继续）。
+
+作为“非 root”用户安装：
+-------------------------
+
+- 在相应用户的 .profile 文件中添加以下条目（示例）
+  （根据需要调整条目以匹配安装目录）：
+
+  ```bash
+  # 个人扩展
+  HARBOUR_INSTALL=$HOME/Harbour/core-master
+  PATH=$PATH:$HARBOUR_INSTALL/bin/linux/gcc
+  export PATH
+  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HARBOUR_INSTALL/lib/linux/gcc
+  export LD_LIBRARY_PATH
+  #
+
+  重新登录以使更改生效。
+  ```
+
+- 打开终端窗口，并在主目录（$HOME）中手动创建以下目录：
+  ```bash
+  mkdir hwgui
+  mkdir -p Harbour/core-master
+  mkdir cltest
+  mkdir CLLOG
+  mkdir -p svnwork/cllog
+  ```
+
+- 获取 Harbour 和 HWGUI 的源代码。
+  如果没有特别说明，请从“trunk”主目录获取最新的代码快照。
+  或者，可以从版本库中检出源代码。
+  有关说明，请参见 [1]。
+
+- 安装 Harbour
+  在 $HOME/Harbour/core-master 目录下：
+  - 使用归档工具解压 Harbour 压缩包。
+  （从版本库中获取的最新版本的基础目录名为 "core-master"）
+  - 使用 "make" 命令启动编译。
+
+- 编译 HWGUI：
+  将源代码解压到 $HOME/hwgui 目录。
+  在 $HOME/hwgui 基本目录下进行编译的调用（示例）：
+  1.) ```bash
+     chmod 755 make_gtk.sh
+     ```
+  2.) 在 make_gtk.sh 中调整对 Harbour 的引用：
+     ```bash
+     export HB_ROOT=$HOME/Harbour/core-master
+     ```
+  3.) ```bash
+     ./make_gtk.sh -hb
+     ```
+  4.) 编译完成后，必须在 "lib" 目录下生成以下文件：
+     libhbxml.a  libhwgdebug.a  libhwgui.a  libprocmisc.a
+
+- 编译并测试 HWGUI 示例：
+  （在 samples/gtk_samples 目录下）
+  - ```bash
+    chmod 755 build.sh
+    ```
+  - 修改 build.sh 中的
+     ```bash
+     # export HB_ROOT=../../..
+     ```
+     ==> 调整为 Harbour 安装路径，例如
+        ```bash
+        export HB_ROOT=$HOME/Harbour/core-master
+        ```
+  - 编译示例：
+    ```bash
+    ./build.sh example
+    ```
+  - 启动并测试程序
+    ```bash
+    ./example
+    ```
+  - 或者编译 "dbview.prg"。然后可以打开一个 DBF 文件进行测试，例如 "samples/sample.dbf"。
+
+- 从项目网站获取 CLLOG 源代码：
+  - 打开终端。
+  - 切换到目录：
+    ```bash
+    cd $HOME/CLLOG
+    ```
+  - 访问项目网站的 "Code" 页面：
+    右上角有 Subversion checkout 命令，您可以将其复制到终端应用程序的输入行中：
+    ```bash
+    svn checkout https://svn.code.sf.net/p/cllog/code/ cllog-code
+    ```
+    或者，您也可以从 "trunk" 目录获取代码快照。
+
+创建 CLLOG 安装
+---------------------------------
+
+1.) 解压后的主要目录结构大致如下：
+   - src
+   - hilfe
+   - dokdxcc
+   - doc
+   - bat （包含批处理脚本）
+   - sh  （包含 LINUX 的 shell 脚本）
+   以及其他目录。
+
+2.) 空目录会在执行 makeall.bat/sh 时自动创建。
+
+3.) 进入 src 目录：
+    chmod 755 *.sh
+
+    通过调用：
+    ./clean_win.sh
+    删除所有不需要的 Windows 和 DOS exe 文件。
+
+    通过执行：
+    ./makeall.sh
+    开始编译所有程序。
+
+4.) 创建新的目的地目录：
+    对于每个呼号执行：
+    ./install.sh <路径>
+    例如：
+    ./install.sh ~/cltest/DL1ABC
+
+5.) 更新现有安装：
+    ./install.sh <路径>
+    调用与新安装相同，但不会覆盖可能已被最终用户修改的文件。
+    脚本将报告未被覆盖的文件。
+
+6.) 删除索引文件：
+    为了避免因不兼容的索引数据导致崩溃，在每次安装前应删除：
+    del *.ntx
+    或在 LINUX 中：
+    rm *.ntx
+    这些文件将在 CLLOG 下一次启动时重新创建。
+
+2.4 MS-DOS 下的 CLLOG
+____________________
+
+为了在历史计算机上运行 CLLOG，我们基于当前的 1.x 版本提供了一个新的版本。
+
+安装说明位于一个单独的文档中：
+
+MS-DOS 版本的 CLLOG 附加说明：
+clips87.htm
+
+您可以从索引页面访问此文档。
+
+3. CLLOG 的初步步骤
+_________________________
+
+您可以在 "doc" 子目录中找到 HTML 格式的文档。使用网络浏览器打开 "index.htm" 文件。从这个起始页面，您可以访问到德语和英语的文档。
+
+首次启动 CLLOG：
+在 Windows 上调用 "logw.exe" 程序，或在 LINUX 上执行 "./logw"。在更新安装之前，请先删除索引文件。
+
+您可以根据上一章的描述创建一个桌面快捷方式来启动 CLLOG。
+
+首先，所有索引文件将被创建。然后，会显示一条消息，表明正在使用演示数据集。接着，在主窗口（浏览窗口）中将显示演示数据集。先熟悉一下 CLLOG 的各项功能。您仍然可以输入新的（虚构的）QSO（无线电通讯），打开轮次等。
+默认启动语言是德语。您也可以切换到英语。更改语言后，程序将结束。重新启动后，新的语言设置将生效。
+
+注意！不要编辑带有呼号 "DEMO-DATEN" 的数据集，这表示演示数据集！
+
+完成后，您可以删除演示数据集。在 "维护" 菜单下，您会找到 "删除演示数据集" 菜单项。系统会再次提示您确认是否真的要删除演示数据，之后程序将结束并需要重新启动。只有在没有打开的轮次且没有设置过滤器的情况下，才能删除演示数据集。
+
+重新启动后，浏览列表将为空，您现在可以输入第一个 QSO 或执行导入操作。"维护" 下的 "删除演示数据" 菜单项将不再出现，启动时的相应消息也不再显示。在 "配置" 下的 "个人数据" 中输入您自己的数据（呼号、QTH 定位器、地址、时区等）。
+
+通过调用 log.exe，您可以启动 CLLOG 的控制台版本。这个版本已经过时，不建议再使用。这里不提供所有 GUI 版本的功能。但是，您可以用两种版本中的任意一种编辑日志簿。不过，一次只能运行这些程序中的一个。
+
+由于用户手册尚未完成，大多数情况下内置的帮助功能会提供帮助，但这里也不是所有的帮助文本都可用，我们将在适当的时候补充这些内容。在 HWGUI 应用程序中，对话框中有 "帮助" 按钮，它会显示当前对话框的适当帮助。在控制台/终端应用程序中，可以通过按 F1 键来获取帮助。
+
+4. 程序挂起/错误堆栈和错误消息
+========================================================
+
+如果由于某个特定问题，应用程序 "挂起" 并且不能以正常方式结束，则必须从外部强制结束。
+
+在 Windows 上使用任务管理器：
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+您可以从任务栏中调出它。然后在 "进程" 标签中找到程序并用鼠标单击选中它。
+通过 "结束任务" 按钮来强制结束。
+
+在 LINUX 上：
+~~~~~
+如果您从终端窗口启动了程序，只需输入组合键 "<Ctrl>+C"。
+如果不是这种情况：
+使用命令查找进程 ID：
+ps -fu <userid> | grep <prog-name>
+对于 <userid> 输入当前的用户名，对于 <prog-name> 输入程序名称，例如 "logw"。
+根据显示的进程 ID（一个数值），使用以下命令强制结束进程：
+kill -9 <进程 ID>。
+
+错误堆栈和错误消息
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+错误堆栈在运行时错误的情况下，会收集最后执行的函数调用列表，其中导致错误中断的最后一个调用位于列表顶部。上面会有一条消息指明错误原因（用英语）。括号内是源代码的行号。
+您可以完全选中文本并用 <Ctrl>+C 复制到文本编辑器中。通常按下 "Close" 按钮会结束程序。通常还会弹出 "真的要结束吗" 的询问对话框，您必须用 "Yes" 回答，否则会留下一个挂起的程序，这将需要如上所述从外部强制结束。
+错误堆栈的内容有助于分析错误原因，必须始终作为附件添加到错误报告中。
+
+您也应该在 "Error.log" 文件中找到错误堆栈的文本。
+
+参见 "1.2 错误报告" 部分。
+
+在创建报告时，请描述所有步骤直到出现错误中断。
+
+5. 数据导入
+====================
+
+如果您想导入数据，有以下几种方法可供选择：
+- 重要的导入功能可以在日志程序 "logw.exe" 的主菜单中找到，例如 ADIF。
+- 外部程序：这些必须在命令提示符下执行。
+  特别是对于从其他程序导入日志簿的情况。
+  相关源代码可以在 "src\importe" 目录中找到。
+    
+否则，请阅读 "doc\de\importe\import.htm" 中的说明。如果您需要帮助，请在项目页面上创建一个工单或给我们发送一封电子邮件。
+
+注意！
+部分导入程序可能已经过时，有时可能无法正常工作。
+
+在 "doc/de/index.htm" 索引页面上，列出了各个导入程序的详细文档。
+
+6. 数据备份
+=================
+
+随着存储介质的技术发展，通常不需要使用特殊的数据备份程序。
+请按照以下说明定期备份您的日志簿，以防止特殊任务（如导入、维护）期间的数据丢失：
+1.) 必须先关闭所有属于 CLLOG 复杂系统的程序，以确保没有打开的文件被备份。
+2.) 删除索引文件：可以使用命令
+     del *.ntx
+    或者在 HWGUI 主程序的 "维护 / 删除索引文件" 菜单项中进行。
+3.) 现在将整个日志目录复制到备份介质上。
+4.) 备份完成后，重新启动 CLLOG。之前删除的索引文件将被重新创建。
+
+对于基本备份（基于演示数据集），每次单独备份大约需要 50 MB 的空间，加上数据库文件（*.dbf/dbt）的大小。
+
+计划将来在主程序中集成一个舒适的数据备份功能。
+
+在 "bat" 子目录中存在一个用于 Windows 控制台（CMD）的批处理文件，将 "sichern.bat" 文件（如果尚未存在）复制到您的 CLLOG 实例的目录中。您可以根据自己的需求调整该脚本。它将在更新过程中保持不变。如果有疑问，在更新时请使用合适的差异比较工具（例如 "WinMerge"）比较现有的 "sichern.bat" 与发布版本。
+
+在这个目录中，您还可以为 LINUX 系统找到等效的 shell 脚本 "sichern.sh"。
+
+7. 程序列表
+======================
+（节选，不是全部）
+完整列表可在 "Modulliste" modules.htm 中找到。
+
+*) = 控制台或终端应用程序
+
+LINUX 没有 .exe 扩展名
+
+clogw.exe    "面板程序"：启动日志簿和其他辅助程序（可配置，进行中）
+logw.exe     日志簿主程序（Windows 或 X11 图形应用程序，使用 HWGUI）
+log.exe      日志簿主程序（控制台或终端应用程序，已过时）*
+lbledit.exe  标签文件（贴纸）编辑程序）*
+db_edit.exe  现有 DBF 数据库文件的通用编辑程序 *)
+filtern.exe  过滤器文件 (*.flt) 编辑程序 *)
+dbcheck.exe  现有 DBF 数据库文件的检查程序 *
+rundeimp.exe 从另一个 CLLOG 实例导入轮次和离线证书的程序 *)
+             （例如家庭日志簿），功能已集成在 logw.exe 中，已过时。
+lblprint.exe 标签文件检查程序：加载一个 *.lbl 文件并打印一个带有虚构 QSO 的标签（已过时，需要并行打印机接口 LPTx）。*
+owncall.exe  从 user.mem 中读取自己的呼号（仅用于批处理）*
+locked.exe   根据锁定的数据库检查是否有程序正在运行（仅用于批处理，数据备份）
+smv.exe      移动单个文件（仅用于批处理）*
+datum.exe    以 ANSI 格式输出日期（仅用于批处理，数据备份作业）*
+crudatm.exe  仅用于安装：创建带有自己呼号条目的 user.mem。*
+
+8. 使用 Borland C 编译 CLLOG
+=====================================
+
+适用于：“Borland C++ 5.82 for Win32”
+
+在网上搜索 "Borland C compiler download"，应该会显示很多结果。
+示例：
+https://borland-c.software.informer.com/download/
+
+为了确保正常工作，至少应使用以下版本：
+bcc32.exe
+Borland C++ 5.82 for Win32 Copyright (c) 1993, 2005 Borland
+
+相应的安装目录为：
+
+C:\harbour-bcc\core-master
+C:\hwgui\hwgui-bcc
+
+这样，就可以与 MinGW 等其他环境并行运行。
+
+操作步骤与 Windows 下 MinGW 的描述类似。
+
+在编译 Harbour、HWGUI 和 CLLOG 之前，设置环境变量：
+  cd C:\CLLOG\src
+  pfad_bc.bat
+  
+编译 Harbour 和 HWGUI 时，请阅读这些产品的原始安装说明（英文）。
+
+CLLOG：
+- 通常通过调用
+  hbmk2 <program>.prg 
+  来编译单个 Harbour 控制台程序。
+- 使用
+  make_bcc.bat <program>
+  创建单个 HWGUI 程序（程序名称不包括扩展名 .prg）。
+- 使用
+  makeall_bcc.bat
+  编译所有程序。
+- 使用
+  comcheck.bat
+  检查编译情况...
+  编译 Harbour 和 HWGUI 完成
+- 如常使用（示例）：
+  install.bat c:\logbuch1  
+  安装单个 CLLOG 实例。
+
+如果需要，可以按以下方式编译单个 HWGUI 程序：
+（例如 CLLOG 主程序）：
+
+make_bcc.bat logw
+
+结果 "logw.exe" 将保存在当前目录中。
+
+附录 1：互联网链接和文献出处
+==============================================
+
+[1] CLLOG 项目在 Sourceforge 的页面：
+    https://sourceforge.net/projects/cllog/
+
+[2] "Harbour Project" 在 GITHUB 的页面：
+    https://harbour.github.io/
+
+    源代码仓库：
+    https://github.com/harbour/core/
+
+[3] HWGUI 项目在 Sourceforge 的页面：
+    https://sourceforge.net/projects/hwgui/
+
+[4] Windows 上的 GNU-make
+    下载完整的安装包：
+    gnuwin32.sourceforge.net/packages/make.htm
+
+    源代码：
+    ftp.gnu.org/gnu/make
+
+[5] 集成 HAMLIB：
+    https://github.com/Hamlib/Hamlib
+
+    下载完整的二进制安装包：
+    https://sourceforge.net/projects/hamlib/files/hamlib/
+
+[6] LibUSB 用于访问串行接口：
+    https://sourceforge.net/projects/libusb/
+
+[7] Rick Spence（Clipper 的共同开发者）：
+    《Clipper 编程指南》第二版，第五版，
+    Microtrend Books，加利福尼亚州圣马科斯，
+    ISBN 0-915391-41-4
+
+附录 2：64 位版本
+========================
+
+原则上，可以使用 MinGW64 创建 CLLOG 的 64 位版本。但目前这个过程仅具有实验性质。更大的地址空间并非必需，且执行速度也不会更好，因此继续使用 32 位版本并无不利影响。
+
+尽管如此，如果您仍然希望尝试，以下是指南：
+
+1.) 在以下目录中安装预编译产品：
+
+   C:\MinGW64
+
+   C:\harbour64\core-master
+
+   C:\hwgui\hwgui64
+
+2.) 设置编译路径并检查 gcc 版本：
+   （在创建 Harbour 之前执行）
+
+   cd C:\hwgui\hwgui64
+   samples\dev\env\pfad64.bat
+   gcc --version
+   gcc (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0
+   Copyright (C) 2018 Free Software Foundation, Inc.
+
+   makemngw64.bat
+
+   预期输出：
+   hbmk2 hwgui.hbm hwgui.hbp
+   hbmk2: Processing environment options: -plat=win -comp=mingw64
+   Harbour 3.2.0dev (r2004201301)
+
+   忽略警告：
+   C:/hwgui/hwgui64/include/incomp_pointer.h:20:32: warning: unknown option after '#pragma GCC diagnostic' kind [-Wpragmas]
+   #pragma GCC diagnostic ignored "-Wabsolute-value"
+   ^~~~~~~~~~~~~~~~~~
+
+   编译并启动示例程序 "dbview.prg"
+   hbmk2 dbview.hbp
+   打开测试数据库 "sample.dbf"。
+
+3. 创建 64 位 CLLOG：
+-------------------------
+
+   cd C:\CLLOG\src
+   pfad64.bat
+   src>hbmk2 logw.hbp
+
+   C:\CLLOG\src>hbmk2 logw.hbp
+   hbmk2: Processing environment options: -plat=win -comp=mingw64
+   Harbour 3.2.0dev (r2004201301)
+   Copyright (c) 1999-2020, https://harbour.github.io/
+
+   忽略警告：
+
+   libutc.prg: In function 'HB_FUN_CLLOG_GETUTCTIMEDATE':
+   libutc.prg:172:15: warning: '%02d' directive writing between 2 and 11 bytes into a region of size between 0 and 16 [-Wformat-overflow=]
+   libutc.prg:172:3: note: 'sprintf' output between 20 and 82 bytes into a destination of size 24
+
+   C:/MINGW64/bin/../lib/gcc/x86_64-w64-mingw32/8.1.0/../../../../x86_64-w64-mingw32/bin/ld.exe: skipping incompatible C:/hwgui/hwgui/lib\libhwgdebug.a when searching for -lhwgdebug
+
+   现在将可执行文件 "logw.exe" 复制到目标环境。
+
+附录 3：Windows 11 的额外提示
+=============================================
+
+   即使在 Windows 11 上，所有 HWGUI 应用程序通常也会像往常一样运行。
+   默认终端现在是 "Windows PowerShell"，但它不能执行 *.bat 文件。
+   要获得正常的命令行终端，在系统对话框中搜索 "cmd.exe" 并启动它。
+   如果它运行了，就将其固定在任务栏上以快速访问。
+
+   Windows 11 的一个新功能是可缩放视图。
+   默认设置是 150%。这对于一些较大的窗口来说太高了（例如，QSO 的编辑掩码）。
+   如果一个对话框在桌面上没有足够的空间，
+   那么请进入系统设置并将缩放从 150% 降低到 125% 或 100%。
+
+   在 PowerShell 中可以直接运行 Harbour 控制台应用程序，但在大多数情况下需要将行数设置为 25，列数设置为 80。
+
+* ===== 快速指南结束  ======
+
