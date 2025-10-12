@@ -96,6 +96,10 @@ STATIC oFontMain, oDlgBar
 STATIC cFontMain := "", lProgressOn := .T., cExtView := ""
 STATIC lCreatScr
 
+REQUEST HB_LANG_zh_sim          // 简体中文错误提示
+REQUEST HB_CODEPAGE_UTF8        // 预声明 UTF8 别名
+REQUEST HB_CODEPAGE_GBK         // 预声明 GBK 别名
+
 FUNCTION Main( ... )
 
    LOCAL aParams := hb_aParams(), i, j, c, aFiles := {}, af, cTmp
@@ -103,6 +107,9 @@ FUNCTION Main( ... )
    LOCAL oComp, oGui, cLibsDop, cLibsPath, cGtLib
    LOCAL cSrcPath, cObjPath, cOutName, cFlagsPrg, cFlagsC, aUserPar := {}
    LOCAL cIniName := "hwbuild.ini", cMsgWrong := "Wrong command line option"
+
+   HB_LANGSELECT( "zh_sim" )
+   hb_cdpSelect( "UTF8" )        // 必须写 UTF8，不能写 UTF-8
 
    lCreatScr := .F.
    FOR i := 1 TO Len( aParams )
