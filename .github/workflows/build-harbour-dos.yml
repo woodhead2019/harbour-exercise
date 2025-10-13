@@ -35,6 +35,7 @@ jobs:
           HB_PLATFORM: dos
           HB_COMPILER: watcom
           HB_HOST_BIN: ${{ github.workspace }}/bin
+          CFLAGS: "-I$WATCOM/h"  # 强制 Watcom 头文件
         run: |
           # ✅ 必须在此处为交叉编译显式设置 Watcom 的环境变量
           export PATH="$WATCOM/binl:$PATH"
