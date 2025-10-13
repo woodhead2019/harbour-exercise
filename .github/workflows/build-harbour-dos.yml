@@ -25,7 +25,7 @@ jobs:
         run: |
           echo "Building host tools using native GCC..."
           make clean
-          # ✅ 明确指定使用 gcc 来构建主机工具，覆盖自动检测
+          # 强制使用 gcc 构建主机工具
           make -j$(nproc) HB_COMPILER=gcc
           echo "Host tools built successfully:"
           ls -la bin/
@@ -36,15 +36,18 @@ jobs:
           HB_COMPILER: watcom
           HB_HOST_BIN: ${{ github.workspace }}/bin
         run: |
-          # 这里不需要再设置 PATH 和 INCLUDE，因为 setup-watcom action 已经全局设置好了
-          echo "Starting DOS cross-compilation..."
+          # ✅ 必须在此处为交叉编译显式设置 Watcom 的环境变量
+          export PATH="$WATCOM/binl:$PATH"
+          export INCLUDE="$WATCOM/h"
+
+          echo "Starting DOS cross-compilation with explicit environment..."
           make clean
           make -j$(nproc) HB_BUILD_3RD=no
 
       - name: Package DOS binaries
         run: |
           mkdir -p harbour-dos-bin
-          # DOS 的产物通常在 bin/dos/watcom/ 目录下
+          # DOS 的产物在 bin/dos/watcom/ 目录下
           find bin/dos/watcom/ -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found in bin/dos/watcom/"
           if [ "$(ls -A harbour-dos-bin)" ]; then
             tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
