@@ -21,6 +21,13 @@ jobs:
         with:
           version: "2.0"
 
+      - name: Debug Watcom Setup
+        run: |
+          echo "WATCOM path: $WATCOM"
+          ls -la $WATCOM/binl/ || echo "binl directory not found"
+          $WATCOM/binl/wcc386 -h || echo "Watcom test failed - check logs"
+          echo "INCLUDE path: $INCLUDE"
+
       - name: Build Host Harbour (Linux)
         run: |
           echo "Building host tools using native GCC..."
