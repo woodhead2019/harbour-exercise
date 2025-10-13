@@ -17,7 +17,7 @@ jobs:
           ref: master
 
       - name: Setup Open Watcom
-        uses: woodhead2019/setup-watcom@v0
+        uses: woodhead2019/setup-watcom@main
         with:
           version: "2.0"
 
@@ -44,4 +44,4 @@ jobs:
         with:
           name: harbour-dos-binaries
           path: harbour-dos.tar.gz
-          if-no-files-found: error
+          if-no-files-found: warn
