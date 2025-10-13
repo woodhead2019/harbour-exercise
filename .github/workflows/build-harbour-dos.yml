@@ -21,48 +21,48 @@ jobs:
         with:
           version: "2.0"
 
-      - name: Debug Watcom Setup
-        run: |
-          echo "WATCOM path: $WATCOM"
-          ls -la $WATCOM/binl/ || echo "binl directory not found"
-          $WATCOM/binl/wcc386 -h || echo "Watcom test failed - check logs"
-          echo "INCLUDE path: $INCLUDE"
-
       - name: Build Host Harbour (Linux)
         run: |
-          export PATH=$WATCOM/binl:$PATH
-          export INCLUDE=$WATCOM/h  # 强制使用 Watcom 头文件
+          # ❗️修正点：删除所有关于 WATCOM 的环境变量设置
+          # 使用 Ubuntu 自带的 GCC 来构建原生的 Linux 工具
+          echo "Building host tools using native GCC..."
           make clean
-          make -j$(nproc)  # 构建 Linux 版本的 Harbour
-          ls -la bin/  # 检查生成的工具
+          make -j$(nproc)
+          echo "Host tools built successfully:"
+          ls -la bin/
 
       - name: Build Harbour for DOS
         env:
-          WATCOM: ${{ env.WATCOM }}
+          # 将 WATCOM 环境变量放在这里，确保只影响这一个步骤
           HB_PLATFORM: dos
           HB_COMPILER: watcom
-          HB_HOST_BIN: /home/runner/work/harbour-exercise/harbour-exercise/bin  # 设置主机工具路径
+          # ❗️修正点：使用 github.workspace 动态获取路径，更可靠
+          HB_HOST_BIN: ${{ github.workspace }}/bin
         run: |
+          # ✅ 正确做法：在这里为交叉编译设置 Watcom 的环境
           export PATH=$WATCOM/binl:$PATH
-          export INCLUDE=$WATCOM/h  # 再次确保正确头文件路径
+          export INCLUDE=$WATCOM/h
+          echo "Starting DOS cross-compilation..."
           make clean
-          make -j$(nproc) HB_BUILD_3RD=no  # 禁用第三方库以避免 PNG 错误
+          # 禁用第三方库可以简化编译，避免链接错误
+          make -j$(nproc) HB_BUILD_3RD=no
 
       - name: Package DOS binaries
         run: |
           mkdir -p harbour-dos-bin
-          find bin -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found"
-          if [ -d harbour-dos-bin ] && [ "$(ls -A harbour-dos-bin)" ]; then
+          # 查找 bin/dos/watcom/ 目录下的 .exe 文件
+          find bin/dos/watcom/ -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found in bin/dos/watcom/"
+          if [ "$(ls -A harbour-dos-bin)" ]; then
             tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
-            echo "Packaged $(ls harbour-dos-bin | wc -l) binaries"
+            echo "Packaged $(ls harbour-dos-bin | wc -l) binaries."
           else
-            echo "No binaries to package"
+            echo "No DOS binaries were found to package."
             exit 1
           fi
-      
+
       - name: Upload DOS binaries
         uses: actions/upload-artifact@v4
         with:
           name: harbour-dos-binaries
           path: harbour-dos.tar.gz
-          if-no-files-found: warn
+          if-no-files-found: error
