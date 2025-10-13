@@ -17,7 +17,7 @@ jobs:
           ref: master
 
       - name: Setup Open Watcom
-        uses: open-watcom/setup-watcom@v0  # 切换到官方仓库的 v0 版本
+        uses: open-watcom/setup-watcom@v0
         with:
           version: "2.0"
 
@@ -25,18 +25,28 @@ jobs:
         run: |
           echo "WATCOM path: $WATCOM"
           ls -la $WATCOM/binl/ || echo "binl directory not found"
-          $WATCOM/binl/wcl386 -h || echo "Watcom test failed - check logs"
+          $WATCOM/binl/wcc386 -h || echo "Watcom test failed - check logs"
+          echo "INCLUDE path: $INCLUDE"
+
+      - name: Build Host Harbour (Linux)
+        run: |
+          export PATH=$WATCOM/binl:$PATH
+          export INCLUDE=$WATCOM/h  # 强制使用 Watcom 头文件
+          make clean
+          make -j$(nproc)  # 构建 Linux 版本的 Harbour
+          ls -la bin/  # 检查生成的工具
 
       - name: Build Harbour for DOS
         env:
           WATCOM: ${{ env.WATCOM }}
           HB_PLATFORM: dos
           HB_COMPILER: watcom
+          HB_HOST_BIN: /home/runner/work/harbour-exercise/harbour-exercise/bin  # 设置主机工具路径
         run: |
           export PATH=$WATCOM/binl:$PATH
-          export INCLUDE=$WATCOM/h
-          make clean  # 清理旧构建
-          make -j$(nproc)
+          export INCLUDE=$WATCOM/h  # 再次确保正确头文件路径
+          make clean
+          make -j$(nproc) HB_BUILD_3RD=no  # 禁用第三方库以避免 PNG 错误
 
       - name: Package DOS binaries
         run: |
@@ -55,4 +65,4 @@ jobs:
         with:
           name: harbour-dos-binaries
           path: harbour-dos.tar.gz
-          if-no-files-found: warn  # 改为 warn 以便调试
+          if-no-files-found: warn
