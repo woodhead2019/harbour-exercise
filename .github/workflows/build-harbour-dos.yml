@@ -17,9 +17,15 @@ jobs:
           ref: master
 
       - name: Setup Open Watcom
-        uses: woodhead2019/setup-watcom@main
+        uses: woodhead2019/setup-watcom@master  # 改为 @master
         with:
           version: "2.0"
+
+      - name: Debug Watcom Setup (Optional)
+        run: |
+          echo "WATCOM path: $WATCOM"
+          ls -la $WATCOM/binl/ || echo "binl not found"
+          $WATCOM/binl/wcl386 -h || echo "Watcom test failed"
 
       - name: Build Harbour for DOS
         env:
@@ -29,19 +35,24 @@ jobs:
         run: |
           export PATH=$WATCOM/binl:$PATH
           export INCLUDE=$WATCOM/h
+          make clean  # 清理旧构建
           make -j$(nproc)
 
       - name: Package DOS binaries
         run: |
           mkdir -p harbour-dos-bin
-          cp bin/harbour.exe harbour-dos-bin/
-          cp bin/hbmk2.exe harbour-dos-bin/
-          cp bin/*.exe harbour-dos-bin/  # 包括其他工具
-          tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
+          find bin -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found"
+          if [ -d harbour-dos-bin ] && [ "$(ls -A harbour-dos-bin)" ]; then
+            tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
+            echo "Packaged $(ls harbour-dos-bin | wc -l) binaries"
+          else
+            echo "No binaries to package"
+            exit 1
+          fi
       
       - name: Upload DOS binaries
         uses: actions/upload-artifact@v4
         with:
           name: harbour-dos-binaries
           path: harbour-dos.tar.gz
-          if-no-files-found: warn
+          if-no-files-found: warn  # 改为 warn 以便调试
