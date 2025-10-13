@@ -1,4 +1,4 @@
-name: Build Harbour for DOS in harbour-exercise
+name: Build Harbour for DOS
 
 on:
   push:
@@ -23,34 +23,28 @@ jobs:
 
       - name: Build Host Harbour (Linux)
         run: |
-          # ❗️修正点：删除所有关于 WATCOM 的环境变量设置
-          # 使用 Ubuntu 自带的 GCC 来构建原生的 Linux 工具
           echo "Building host tools using native GCC..."
           make clean
-          make -j$(nproc)
+          # ✅ 明确指定使用 gcc 来构建主机工具，覆盖自动检测
+          make -j$(nproc) HB_COMPILER=gcc
           echo "Host tools built successfully:"
           ls -la bin/
 
       - name: Build Harbour for DOS
         env:
-          # 将 WATCOM 环境变量放在这里，确保只影响这一个步骤
           HB_PLATFORM: dos
           HB_COMPILER: watcom
-          # ❗️修正点：使用 github.workspace 动态获取路径，更可靠
           HB_HOST_BIN: ${{ github.workspace }}/bin
         run: |
-          # ✅ 正确做法：在这里为交叉编译设置 Watcom 的环境
-          export PATH=$WATCOM/binl:$PATH
-          export INCLUDE=$WATCOM/h
+          # 这里不需要再设置 PATH 和 INCLUDE，因为 setup-watcom action 已经全局设置好了
           echo "Starting DOS cross-compilation..."
           make clean
-          # 禁用第三方库可以简化编译，避免链接错误
           make -j$(nproc) HB_BUILD_3RD=no
 
       - name: Package DOS binaries
         run: |
           mkdir -p harbour-dos-bin
-          # 查找 bin/dos/watcom/ 目录下的 .exe 文件
+          # DOS 的产物通常在 bin/dos/watcom/ 目录下
           find bin/dos/watcom/ -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found in bin/dos/watcom/"
           if [ "$(ls -A harbour-dos-bin)" ]; then
             tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
