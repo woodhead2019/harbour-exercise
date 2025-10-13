@@ -16,6 +16,11 @@ jobs:
           repository: woodhead2019/harbour
           ref: master
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ make zlib1g-dev libpcre3-dev
+
       - name: Setup Open Watcom
         uses: open-watcom/setup-watcom@v0
         with:
@@ -29,34 +34,39 @@ jobs:
           echo "INCLUDE path: $INCLUDE"
 
       - name: Build Host Harbour (Linux)
+        env:
+          HB_PLATFORM: linux
+          HB_COMPILER: gcc
         run: |
-          echo "Building host tools using native GCC..."
+          export PATH=/usr/bin:$PATH
+          export CC=gcc
+          export CXX=g++
           make clean
-          # 强制使用 gcc 构建主机工具
-          make -j$(nproc) HB_COMPILER=gcc
-          echo "Host tools built successfully:"
+          make -j$(nproc) HB_BUILD_3RD=no
+          echo "Host tools built:"
           ls -la bin/
+          ./bin/hbmk2 --version || echo "hbmk2 not found"
 
       - name: Build Harbour for DOS
         env:
+          WATCOM: ${{ env.WATCOM }}
           HB_PLATFORM: dos
           HB_COMPILER: watcom
           HB_HOST_BIN: ${{ github.workspace }}/bin
-          CFLAGS: "-I$WATCOM/h"  # 强制 Watcom 头文件
+          HB_USER_CFLAGS: "-x -xx -i=$WATCOM/h -bt=dos"  # 修复头文件路径
         run: |
-          # ✅ 必须在此处为交叉编译显式设置 Watcom 的环境变量
-          export PATH="$WATCOM/binl:$PATH"
-          export INCLUDE="$WATCOM/h"
-
-          echo "Starting DOS cross-compilation with explicit environment..."
+          export PATH=$WATCOM/binl:$PATH
+          export INCLUDE=$WATCOM/h
+          # 调试编译器标志
+          echo "Checking wcc386 include paths:"
+          $WATCOM/binl/wcc386 -h | grep -i include || echo "No include info"
           make clean
-          make -j$(nproc) HB_BUILD_3RD=no
+          make -j$(nproc) HB_BUILD_3RD=no V=1
 
       - name: Package DOS binaries
         run: |
           mkdir -p harbour-dos-bin
-          # DOS 的产物在 bin/dos/watcom/ 目录下
-          find bin/dos/watcom/ -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found in bin/dos/watcom/"
+          find bin/dos/watcom -name "*.exe" -exec cp {} harbour-dos-bin/ \; || echo "No .exe files found in bin/dos/watcom/"
           if [ "$(ls -A harbour-dos-bin)" ]; then
             tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
             echo "Packaged $(ls harbour-dos-bin | wc -l) binaries."
