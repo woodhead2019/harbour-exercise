@@ -17,15 +17,15 @@ jobs:
           ref: master
 
       - name: Setup Open Watcom
-        uses: woodhead2019/setup-watcom@master  # 改为 @master
+        uses: open-watcom/setup-watcom@v0  # 切换到官方仓库的 v0 版本
         with:
           version: "2.0"
 
-      - name: Debug Watcom Setup (Optional)
+      - name: Debug Watcom Setup
         run: |
           echo "WATCOM path: $WATCOM"
-          ls -la $WATCOM/binl/ || echo "binl not found"
-          $WATCOM/binl/wcl386 -h || echo "Watcom test failed"
+          ls -la $WATCOM/binl/ || echo "binl directory not found"
+          $WATCOM/binl/wcl386 -h || echo "Watcom test failed - check logs"
 
       - name: Build Harbour for DOS
         env:
