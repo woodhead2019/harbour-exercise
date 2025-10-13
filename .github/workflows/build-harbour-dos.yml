@@ -1,0 +1,47 @@
+name: Build Harbour for DOS in harbour-exercise
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-dos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Harbour repository
+        uses: actions/checkout@v4
+        with:
+          repository: woodhead2019/harbour
+          ref: master
+
+      - name: Setup Open Watcom
+        uses: woodhead2019/setup-watcom@v0
+        with:
+          version: "2.0"
+
+      - name: Build Harbour for DOS
+        env:
+          WATCOM: ${{ env.WATCOM }}
+          HB_PLATFORM: dos
+          HB_COMPILER: watcom
+        run: |
+          export PATH=$WATCOM/binl:$PATH
+          export INCLUDE=$WATCOM/h
+          make -j$(nproc)
+
+      - name: Package DOS binaries
+        run: |
+          mkdir -p harbour-dos-bin
+          cp bin/harbour.exe harbour-dos-bin/
+          cp bin/hbmk2.exe harbour-dos-bin/
+          cp bin/*.exe harbour-dos-bin/  # 包括其他工具
+          tar -czf harbour-dos.tar.gz -C harbour-dos-bin .
+      
+      - name: Upload DOS binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: harbour-dos-binaries
+          path: harbour-dos.tar.gz
+          if-no-files-found: error
