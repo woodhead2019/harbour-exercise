@@ -56,6 +56,8 @@ jobs:
           HB_USER_CFLAGS: "-x -xx -i=$WATCOM/h -bt=dos"  # 修复头文件路径
         run: |
           export PATH=$WATCOM/binl:$PATH
+          export EDPATH=$WATCOM/eddat
+          export WIPFC=$WATCOM/wipfc
           export INCLUDE=$WATCOM/h
           export HB_BUILD_GPM=no
           export HB_BUILD_SLANG=no
