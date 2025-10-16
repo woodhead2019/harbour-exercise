@@ -62,7 +62,7 @@ jobs:
           export HB_BUILD_GPM=no
           export HB_BUILD_SLANG=no
           export HB_WITH_CURSES=no
-          export HB_CURSES_WIDE=no        # 指定使用宽字符版本
+          export HB_CURSES_WIDE=no       # 指定使用宽字符版本
           export HB_WITH_X11=no
           export HB_BUILD_3RDEXT=no
           # 调试编译器标志
