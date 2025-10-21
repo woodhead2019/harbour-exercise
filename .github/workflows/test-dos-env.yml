@@ -9,13 +9,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 直接运行 build-dos-env.sh（自带工具足够）
+      - name: 安装极简依赖（仅 qemu-utils + unzip）
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y qemu-utils unzip
+
+      - name: 运行 build-dos-env.sh
         run: bash ./build-dos-env.sh
 
-      - name: 可选：真正安装 QEMU（若需要运行 DOS）
+      # 如需真正启动 DOS，再装完整 QEMU
+      - name: 可选：安装完整 QEMU 并验证镜像
         run: |
-          # 这里才 update，且只有需要时才跑
-          sudo apt-get update -qq
           sudo apt-get install -y qemu-system-x86 dosfstools
-          ls -lh dos.img
           file dos.img
