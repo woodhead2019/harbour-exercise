@@ -1,0 +1,21 @@
+name: Test-DOS-Env
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 直接运行 build-dos-env.sh（自带工具足够）
+        run: bash ./build-dos-env.sh
+
+      - name: 可选：真正安装 QEMU（若需要运行 DOS）
+        run: |
+          # 这里才 update，且只有需要时才跑
+          sudo apt-get update -qq
+          sudo apt-get install -y qemu-system-x86 dosfstools
+          ls -lh dos.img
+          file dos.img
