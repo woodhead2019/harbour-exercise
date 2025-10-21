@@ -20,18 +20,15 @@ log "===== 3. 从 CD 启动 → 自动分区 → 格式化 → 写系统 ====="
 # 用 LiveCD 当 cdrom，从光盘启动；出现 Install 菜单后选 "Install to harddisk"
 # 下面自动发送按键序列（↓ 回车，回车，回车，fdisk，回车）
 qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic <<'AUTO'
-INSTALL                     # 菜单选 Install to harddisk
-fdisk
+$(printf '\033')
+$(printf '\033')fdisk
 n
-p
 1
-
-
-t
-6
-a
 1
-w
+y
+$(printf '\033')
+$(printf '\033')
+$(printf '\033')
 format c: /q /v:FREEDOS
 sys c:
 xcopy /s /e a:\*.* c:\
