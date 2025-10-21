@@ -21,8 +21,8 @@ log "===== 3. 从 CD 启动 → 自动分区 → 格式化 → 写系统 ====="
 # 下面自动发送按键序列（↓ 回车，回车，回车，fdisk，回车）
 qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic <<'AUTO'
 sleep 2
-$(printf '\033')
-$(printf '\033')fdisk
+
+$(printf '\n')fdisk
 n
 1
 1
