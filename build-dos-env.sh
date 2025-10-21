@@ -32,9 +32,9 @@ $(printf '\033')
 $(printf '\033')
 $(printf '\033')
 
-format c: /q /v:FREEDOS
-sys c:
-xcopy /s /e a:\*.* c:\
+format e: /q /v:FREEDOS
+sys e:
+xcopy /s /e a:\*.* e:\
 fdapm /poweroff
 AUTO
 
