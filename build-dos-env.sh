@@ -19,10 +19,9 @@ ls -lh FD14BOOT.img FD14LIVE.iso
 log "===== 3. 从 CD 启动 → 自动分区 → 格式化 → 写系统 ====="
 # 用 LiveCD 当 cdrom，从光盘启动；出现 Install 菜单后选 "Install to harddisk"
 # 下面自动发送按键序列（↓ 回车，回车，回车，fdisk，回车）
-qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic <<'AUTO'
-sleep 65
+# 生成按键流（ESC + 命令）
+cat > keys.txt <<'KEYS'
 
-$(printf '\n')
 fdisk
 n
 1
@@ -31,13 +30,23 @@ y
 $(printf '\033')
 $(printf '\033')
 $(printf '\033')
-
+sleep 2
 format e: /q /v:FREEDOS
+sleep 1
 sys e:
+sleep 1
 xcopy /s /e a:\*.* e:\
+sleep 2
 fdapm /poweroff
-AUTO
+KEYS
 
+
+
+# 先睡 70 s（≥ 60 s 倒计时 + 缓冲），再一次性灌入按键
+timeout 90s bash -c "
+  { sleep 70 && cat keys.txt; } | \
+  qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic
+"
 log "===== 4. 首次从硬盘启动 ====="
 timeout 15s qemu-system-i386 -m 16 -drive file=dos.img,format=raw -boot c \
   -nographic -serial stdio <<'EOF' || true
