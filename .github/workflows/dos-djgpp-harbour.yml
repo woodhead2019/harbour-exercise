@@ -1,33 +1,32 @@
 name: DOS-Harbour-CI
-on: [push, pull_request]
+
+# === 仅这里改动 ===
+on:
+  workflow_dispatch:   # 手动触发（默认分支才会出现按钮）
+  # 如果想保留自动触发，可写成 [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4          # ① 拉你的源码
-
-      - name: Pull 已装好 DJGPP+Harbour 的 DOS 镜像
-        run: docker pull soulteary/dos-djgpp-harbour:3.2
+      - uses: actions/checkout@v4
+      # 下面所有步骤保持不动
+      - name: 安装 QEMU 并准备 DOS 环境
+        run: |
+          sudo apt-get update && sudo apt-get install -y qemu-system-x86 dosfstools
+          bash ./build-dos-env.sh
 
       - name: 编译 Harbour 程序
         run: |
-          # 把当前仓库挂到容器 /ws
-          docker run --rm -v $PWD:/ws \
-            soulteary/dos-djgpp-harbour:3.2 \
-            sh -c 'qemu-system-i386 -m 16 -drive file=/dos/dos.img,format=raw -boot c \
-                   -nographic -serial stdio -rtc base=localtime <<EOF
-            C:
-            CD \\HARBOUR
-            SET PATH=C:\\DJGPP\\BIN;C:\\HARBOUR\\BIN;%PATH%
-            SET DJGPP=C:\\DJGPP\\DJGPP.ENV
-            hbmk2 /ws/src/hello.prg -o/hello.exe
-            REM 把结果拷到宿主挂载点
-            copy hello.exe /ws/hello.exe
-            REM 打印点日志
-            echo BUILD DONE
-            exit
-            EOF'
+          qemu-system-i386 -m 16 -drive file=dos.img,format=raw -boot c \
+            -nographic -serial stdio <<EOF
+          C:
+          CD \\HARBOUR\\BIN
+          hbmk2 /ws/src/hello.prg -o/hello.exe
+          copy hello.exe /ws/hello.exe
+          echo BUILD DONE
+          exit
+          EOF
 
       - name: 上传 DOS 可执行文件
         uses: actions/upload-artifact@v4
