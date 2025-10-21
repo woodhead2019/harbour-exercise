@@ -11,12 +11,14 @@ qemu-img create -f raw dos.img 2000M
 ls -lh dos.img
 
 log "===== 2. 下载 FreeDOS 1.4 LiveCD ====="
-wget -q --show-progress -O FD14-LIVE.iso \
-  https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/distributions/1.4/FD14-LIVE.iso
-
+wget -q --show-progress -O FD14-LiveCD.zip \
+  https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/distributions/1.4/FD14-LiveCD.zip
+unzip -q FD14-LiveCD.zip   # 得到 FD14BOOT.img and iso
+ls -lh FD14BOOT.img
+ls -lh FD14LIVE.iso
 log "===== 3. 从 CD 启动 → 分区 → 格式化 → 写系统 ====="
 # LiveCD 当 cdrom，从光盘启动
-qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14-LIVE.iso -boot d -nographic <<'EOF'
+qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic <<'EOF'
 fdisk 1
 n
 p
