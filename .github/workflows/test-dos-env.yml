@@ -12,7 +12,7 @@ jobs:
       - name: 安装极简依赖（仅 qemu-utils + unzip）
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y qemu-utils unzip
+          sudo apt-get install -y qemu-system-x86 qemu-utils unzip
 
       - name: 运行 build-dos-env.sh
         run: bash ./build-dos-env.sh
