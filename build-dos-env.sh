@@ -29,7 +29,7 @@ cat keys.txt
 
 
 # 先睡 70 s（≥ 60 s 倒计时 + 缓冲），再一次性灌入按键
-timeout 90s bash -c "
+timeout 180s bash -c "
   { sleep 70 && cat keys.txt; } | \
   qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic
 "
