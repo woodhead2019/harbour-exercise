@@ -20,8 +20,8 @@ log "===== 3. 从 CD 启动 → 自动分区 → 格式化 → 写系统 ====="
 # 用 LiveCD 当 cdrom，从光盘启动；出现 Install 菜单后选 "Install to harddisk"
 # 下面自动发送按键序列（↓ 回车，回车，回车，fdisk，回车）
 # 生成按键流（ESC + 命令）
-printf 'fdisk /auto\r\n\' > keys.txt
-printf '\r\nformat e: /q /v:FREEDOS\r\n' >> keys.txt
+printf 'fdisk /auto\r\n' > keys.txt
+printf 'format e: /q /v:FREEDOS\r\n' >> keys.txt
 printf 'sleep 1\r\nsys e:\r\n' >> keys.txt
 printf 'xcopy /s /e a:\*.* e:\\\r\n' >> keys.txt
 printf 'fdapm /poweroff\r\n' >> keys.txt
