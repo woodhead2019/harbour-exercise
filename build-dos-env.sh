@@ -33,7 +33,7 @@ timeout 200s bash -c '
 sleep 70                          # ≥ 60 s 倒计时 + 缓冲
 while IFS= read -r cmd; do
   printf "%s\r" "$cmd"            # 回车 + 小延迟
-  sleep 0.3
+  sleep 1
 done < keys.txt | qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic
 '
 log "===== 4. 首次从硬盘启动 ====="
