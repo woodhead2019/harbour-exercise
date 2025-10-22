@@ -27,12 +27,14 @@ printf 'xcopy /s /e a:\*.* e:\\\r\n' >> keys.txt
 printf 'fdapm /poweroff\r\n' >> keys.txt
 cat keys.txt
 
-
-# 先睡 70 s（≥ 60 s 倒计时 + 缓冲），再一次性灌入按键
-timeout 180s bash -c "
-  { sleep 70 && cat keys.txt; } | \
-  qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic
-"
+# 先睡够倒计时，再逐行延迟发送
+timeout 200s bash -c '
+sleep 70                          # ≥ 60 s 倒计时 + 缓冲
+while IFS= read -r cmd; do
+  printf "%s\r" "$cmd"            # 回车 + 小延迟
+  sleep 0.3
+done < keys.txt | qemu-system-i386 -m 16 -drive file=dos.img,format=raw -cdrom FD14LIVE.iso -boot d -nographic
+'
 log "===== 4. 首次从硬盘启动 ====="
 timeout 15s qemu-system-i386 -m 16 -drive file=dos.img,format=raw -boot c \
   -nographic -serial stdio <<'EOF' || true
