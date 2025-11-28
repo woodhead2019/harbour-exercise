@@ -170,7 +170,7 @@ FUNCTION Main( ... )
             cLibsDop := _DropQuotes( Substr( c, Iif( '=' $ c, 6, 2 ) ) )
 
          ELSEIF ( Left( c,2 ) == "sp" .AND. !('=' $ c) ) .OR. Left( c,8 ) == "srcpath="
-            cSrcPath := _DropQuotes( Substr( c, Iif( '=' $ c, 9, 3 ) ) )
+            cSrcPath := _PS( _DropQuotes( Substr( c, Iif( '=' $ c, 9, 3 ) ) ) )
 
          ELSEIF ( Left( c,2 ) == "ob" .AND. !('=' $ c) ) .OR. Left( c,8 ) == "objpath="
             cObjPath := _DropQuotes( Substr( c, Iif( '=' $ c, 9, 3 ) ) )
@@ -1867,7 +1867,7 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
 #endif
                ENDIF
             ELSEIF ( cTmp := Lower( cTmp ) ) == "srcpath"
-               cSrcPath := _PrjVarsTran( aPrjVars, _DropSlash( Substr( cLine, nPos + 1 ) ) + hb_ps() )
+               cSrcPath := _PrjVarsTran( aPrjVars, _PS( _DropSlash( Substr( cLine, nPos + 1 ) ) ) + hb_ps() )
 
             ELSEIF cTmp == "def_cflags"
                ::cDefFlagsC := _PrjVarsTran( aPrjVars, Substr( cLine, nPos + 1 ) )
