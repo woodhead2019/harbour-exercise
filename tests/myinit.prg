@@ -1,0 +1,18 @@
+/***
+codling=utf-8
+***/
+
+REQUEST HB_LANG_zh_sim
+REQUEST HB_CODEPAGE_UTF8
+REQUEST HB_CODEPAGE_UTF8EX
+
+INIT PROCEDURE MyInit()
+   SET CENTURY ON
+   SET DATE ANSI
+   SET EPOCH TO 1960
+   SET EXAC ON
+
+   hb_cdpSelect( 'UTF8' ) 
+   hb_langSelect( 'zh_sim' )
+
+RETURN
