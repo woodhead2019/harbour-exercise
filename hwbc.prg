@@ -2085,9 +2085,30 @@ METHOD Build( lClean, lSub ) CLASS HwProject
       ENDIF
    ENDIF
 
+   IF Empty( lSub )
+      IF !Empty( ::oComp:aEnv )
+         aEnv := Array( Len(::oComp:aEnv),2 )
+         FOR i := 1 TO Len( ::oComp:aEnv )
+            aEnv[i,1] := ::oComp:aEnv[i,1]
+            aEnv[i,2] := getenv( aEnv[i,1] )
+            hb_setenv( ::oComp:aEnv[i,1], ::oComp:aEnv[i,2] )
+            IF lCreatScr
+#ifdef __PLATFORM__UNIX
+               _CreateScr( "export " + ::oComp:aEnv[i,1] + "=" + ::oComp:aEnv[i,2] )
+#else
+               _CreateScr( "set " + ::oComp:aEnv[i,1] + "=" + ::oComp:aEnv[i,2] )
+#endif
+            ENDIF
+         NEXT
+      ELSEIF ::oComp:family == "msvc"
+         _ShowProgress( "Error: Environment variables are absent in hwbuild.ini", 1,, @cFullOut )
+      ENDIF
+   ENDIF
+
    FOR i := 1 TO Len( ::aProjects )
       cFullOut += ::aProjects[i]:Build( lClean, .T. )
    NEXT
+
    IF Empty( ::aFiles )
       IF !Empty( cFullOut )
          ShowResult( cFullOut )
@@ -2150,26 +2171,6 @@ METHOD Build( lClean, lSub ) CLASS HwProject
 #endif
    cCompPath := _EnvVarsTran( ::oComp:cPath )
    cCompHrbLib := _EnvVarsTran( ::oComp:cPathHrbLib )
-
-   IF Empty( lSub )
-      IF !Empty( ::oComp:aEnv )
-         aEnv := Array( Len(::oComp:aEnv),2 )
-         FOR i := 1 TO Len( ::oComp:aEnv )
-            aEnv[i,1] := ::oComp:aEnv[i,1]
-            aEnv[i,2] := getenv( aEnv[i,1] )
-            hb_setenv( ::oComp:aEnv[i,1], ::oComp:aEnv[i,2] )
-            IF lCreatScr
-#ifdef __PLATFORM__UNIX
-               _CreateScr( "export " + ::oComp:aEnv[i,1] + "=" + ::oComp:aEnv[i,2] )
-#else
-               _CreateScr( "set " + ::oComp:aEnv[i,1] + "=" + ::oComp:aEnv[i,2] )
-#endif
-            ENDIF
-         NEXT
-      ELSEIF ::oComp:family == "msvc"
-         _ShowProgress( "Error: Environment variables are absent in hwbuild.ini", 1,, @cFullOut )
-      ENDIF
-   ENDIF
 
    _ShowProgress( "Harbour: "+Iif(::lHarbour,"Yes","No") + ;
       " Guilib: "+Iif(::lGuiLib,"Yes","No") + " BuildRes: "+Iif(::lBuildRes,"Yes","No") + ;
