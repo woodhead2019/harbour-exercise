@@ -2078,15 +2078,15 @@ METHOD Build( lClean, lSub ) CLASS HwProject
       ENDIF
    ENDIF
 
-   IF lCreatScr
-#ifdef __PLATFORM__UNIX
-     _CreateScr( "export COMPILER=" + oComp:id )
-#else
-     _CreateScr( "set COMPILER=" + oComp:id )
-#endif
-   ENDIF
-
    IF Empty( lSub )
+      IF lCreatScr
+#ifdef __PLATFORM__UNIX
+        _CreateScr( "export COMPILER=" + ::oComp:id )
+#else
+        _CreateScr( "set COMPILER=" + ::oComp:id )
+#endif
+      ENDIF
+
       IF !Empty( ::oComp:aEnv )
          aEnv := Array( Len(::oComp:aEnv),2 )
          FOR i := 1 TO Len( ::oComp:aEnv )
