@@ -11,7 +11,7 @@
 #endif
 #include "hbclass.ch"
 
-#define HWB_VERSION  "1.18"
+#define HWB_VERSION  "1.19"
 
 #define COMP_ID      1
 #define COMP_EXE     2
