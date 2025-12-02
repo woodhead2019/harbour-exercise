@@ -1462,6 +1462,7 @@ STATIC FUNCTION _ShowProgress( cText, nAct, cTitle, cFull )
          OutStd( cText + hb_eol() )
       ENDIF
    ENDIF
+   Inkey( 0.05 )
 #else
 
    IF cFull != Nil
