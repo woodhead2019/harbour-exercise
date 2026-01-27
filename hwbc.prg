@@ -11,7 +11,7 @@
 #endif
 #include "hbclass.ch"
 
-#define HWB_VERSION  "1.19"
+#define HWB_VERSION  "1.20"
 
 #define COMP_ID      1
 #define COMP_EXE     2
@@ -1394,7 +1394,7 @@ STATIC FUNCTION _PrjVarsTran( aPrjVars, cLine )
       DO WHILE ( nPos := hb_At( '$', cLine, nPos ) ) > 0
          nPos2 := nPos + 2
          nLen := Len( cLine )
-         DO WHILE nPos2 <= nLen .AND. !( Substr( cLine, nPos2, 1 ) $ "/\. " )
+         DO WHILE nPos2 <= nLen .AND. !( Substr( cLine, nPos2, 1 ) $ "/\.,;: " )
             nPos2 ++
          ENDDO
          cVar := Substr( cLine, nPos+1, nPos2-nPos-1 )
@@ -1810,7 +1810,9 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
    ENDIF
    IF Empty( aPrjVars )
       _MsgInfo( "User params: " + hb_ValToExp( aUserPar )  + hb_eol() )
-      AAdd( aPrjVars, {"COMPILER",oComp:id} )
+      AAdd( aPrjVars, {"COMPILER", oComp:id} )
+      AAdd( aPrjVars, {"HRBPATH", cPathHrb} )
+      AAdd( aPrjVars, {"HWGUIPATH", cPathHwgui} )
    ENDIF
 
    IF !Empty( aFiles )
