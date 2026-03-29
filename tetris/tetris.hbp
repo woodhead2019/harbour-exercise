@@ -1,0 +1,3 @@
+tetris.prg
+/opt/hwgui/hwgui.hbc
+-L/opt/hwgui/lib/linux/gcc
