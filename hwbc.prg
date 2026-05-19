@@ -261,9 +261,8 @@ FUNCTION Main( ... )
          IF !Empty( oPrg := HwProject():Open( aFiles[nPrj,1], oComp, aUserPar, aFiles ) )
             oPrg:Build( lClean )
          ENDIF
-      ELSE
-         oPrg := HwProject():New( aFiles, oComp, cGtLib, cLibsDop, ;
-            cLibsPath, cFlagsPrg, cFlagsC, cOutName, cObjPath, lLib, .F., lNoGui )
+      ELSEIF !Empty( oPrg := HwProject():New( aFiles, oComp, cGtLib, cLibsDop, ;
+            cLibsPath, cFlagsPrg, cFlagsC, cOutName, cObjPath, lLib, .F., lNoGui ) )
          oPrg:Build( lClean )
       ENDIF
    ELSE
@@ -1762,7 +1761,7 @@ METHOD New( aFiles, oComp, cGtLib, cLibsDop, cLibsPath, cFlagsPrg, cFlagsC, ;
             _MsgStop( "C compiler not found", "Error" )
             RETURN Nil
          ENDIF
-         ::oComp := HCompiler():aList[i]
+         ::oComp := oComp := HCompiler():aList[i]
       ELSE
          ::oComp := oComp
       ENDIF
@@ -1808,8 +1807,10 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
          _MsgStop( "C compiler not found", "Error" )
          RETURN Nil
       ENDIF
-      ::oComp := HCompiler():aList[i]
+      ::oComp := oComp := HCompiler():aList[i]
       lCompDefault := .T.
+   ELSE
+      ::oComp := oComp
    ENDIF
 
    IF Valtype( xSource ) == "A"
