@@ -1755,7 +1755,17 @@ METHOD New( aFiles, oComp, cGtLib, cLibsDop, cLibsPath, cFlagsPrg, cFlagsC, ;
 
    IF PCount() > 1
       ::aFiles := aFiles
-      ::oComp  := Iif( Empty( oComp ), HCompiler():aList[1], oComp )
+      //::oComp  := Iif( Empty( oComp ), HCompiler():aList[1], oComp )
+      IF Empty( oComp )
+         i := Ascan( HCompiler():aList, {|o|!Empty(o:cPath)} )
+         IF i == 0
+            _MsgStop( "C compiler not found", "Error" )
+            RETURN Nil
+         ENDIF
+         ::oComp := HCompiler():aList[i]
+      ELSE
+         ::oComp := oComp
+      ENDIF
       ::cGtLib    := cGtLib
       ::cLibsDop  := Iif( Empty( cLibsDop ) , "", cLibsDop )
       IF !Empty( cGtLib )
@@ -1793,7 +1803,12 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
    LOCAL aPrjVars := Iif( Empty( aParentVars ), {}, AClone( aParentVars ) )
 
    IF Empty( oComp )
-      oComp := HCompiler():aList[1]
+      i := Ascan( HCompiler():aList, {|o|!Empty(o:cPath)} )
+      IF i == 0
+         _MsgStop( "C compiler not found", "Error" )
+         RETURN Nil
+      ENDIF
+      ::oComp := HCompiler():aList[i]
       lCompDefault := .T.
    ENDIF
 
