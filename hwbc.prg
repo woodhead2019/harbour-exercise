@@ -11,7 +11,7 @@
 #endif
 #include "hbclass.ch"
 
-#define HWB_VERSION  "1.20"
+#define HWB_VERSION  "1.21"
 
 #define COMP_ID      1
 #define COMP_EXE     2
@@ -1090,8 +1090,10 @@ STATIC FUNCTION ReadIni( cFile )
                      oComp:lLinkFlagsLib := .T.
                   ELSEIF key == "def_syslibsmt" .AND. !Empty( cTmp := aSect[ key ] )
                      oComp:cSysLibsMt := cTmp
-                  ELSEIF key == "def_syslibsNomt" .AND. !Empty( cTmp := aSect[ key ] )
-                     oComp:cSysLibsNomt := cTmp
+                     oComp:lSysLibsMt := .T.
+                  ELSEIF key == "def_syslibsnomt" .AND. !Empty( cTmp := aSect[ key ] )
+                     oComp:cSysLibsNoMt := cTmp
+                     oComp:lSysLibsNoMt := .T.
                   ELSEIF key == "def_syslibs" .AND. !Empty( cTmp := aSect[ key ] )
                      oComp:cSysLibs := cTmp
                      oComp:lSysLibs := .T.
@@ -1301,6 +1303,12 @@ STATIC FUNCTION IsIniDataChanged()
       ENDIF
       IF !oComp:lSysLibs .AND. !Empty( oComp:cSysLibs )
          RETURN ( oComp:lSysLibs := .T. )
+      ENDIF
+      IF !oComp:lSysLibsMt .AND. !Empty( oComp:cSysLibsMt )
+         RETURN ( oComp:lSysLibsMt := .T. )
+      ENDIF
+      IF !oComp:lSysLibsNoMt .AND. !Empty( oComp:cSysLibsNoMt )
+         RETURN ( oComp:lSysLibsNoMt := .T. )
       ENDIF
    NEXT
 
@@ -1664,6 +1672,8 @@ CLASS HCompiler
    DATA lLinkFlagsCons   INIT .F.
    DATA lLinkFlagsLib    INIT .F.
    DATA lSysLibs         INIT .F.
+   DATA lSysLibsMt       INIT .F.
+   DATA lSysLibsNoMt     INIT .F.
 
    METHOD New( id, cFam )
 
@@ -1958,6 +1968,10 @@ METHOD Open( xSource, oComp, aUserPar, aFiles, aParentVars ) CLASS HwProject
                   _MsgStop( cLine, "Wrong compiler id" )
                   RETURN Nil
                ENDIF
+
+            ELSEIF cTmp == "mt"
+               ::lMt := ( cTmp := Lower( Substr( cLine, nPos + 1 ) ) ) == "on" .OR. cTmp == "yes"
+
             ELSEIF cTmp == "guilib"
                cTmp := Substr( cLine, nPos + 1 )
                IF Empty( cTmp ) .OR. cTmp == '""'
