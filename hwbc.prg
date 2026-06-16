@@ -104,7 +104,7 @@ STATIC lCreatScr
 FUNCTION Main( ... )
 
    LOCAL aParams := hb_aParams(), i, j, c, aFiles := {}, af, cTmp
-   LOCAL nPrj, lErr := .F., lGUI := .F., lMt := .F., lLib := .F., lClean := .F., lNoGui := .F.
+   LOCAL nPrj, lErr := .F., lGUI := .F., lMt := Nil, lLib := .F., lClean := .F., lNoGui := .F.
    LOCAL oComp, oGui, cLibsDop, cLibsPath, cGtLib
    LOCAL cSrcPath, cObjPath, cOutName, cFlagsPrg, cFlagsC, aUserPar := {}
    LOCAL cIniName := "hwbuild.ini", cMsgWrong := "Wrong command line option"
@@ -272,7 +272,9 @@ FUNCTION Main( ... )
             cLibsPath, cFlagsPrg, cFlagsC, cOutName, cObjPath, lLib, .F., lNoGui )
       ENDIF
       IF !Empty( oPrg )
-         oPrg:lMt := lMt
+         IF Valtype( lMt ) == "L"
+            oPrg:lMt := lMt
+         ENDIF
          oPrg:Build( lClean )
       ENDIF
    ELSE
@@ -2228,7 +2230,7 @@ METHOD Build( lClean, lSub ) CLASS HwProject
 
    _ShowProgress( "Harbour: "+Iif(::lHarbour,"Yes","No") + ;
       " Guilib: "+Iif(::lGuiLib,"Yes","No") + " BuildRes: "+Iif(::lBuildRes,"Yes","No") + ;
-      " GuiFlags: "+Iif(::lGuiLinkFlag,"Yes","No"), 1,, @cFullOut )
+      " GuiFlags: "+Iif(::lGuiLinkFlag,"Yes","No")+" Mt mode:"+Iif(::lMt,"Yes","No"), 1,, @cFullOut )
    // Compile prg sources with Harbour
    cCmd := _EnvVarsTran(cPathHrbBin) + hb_ps() + "harbour " + cHrbDefFlags + ;
       " -i" + _EnvVarsTran(cPathHrbInc) + Iif( ::lGuiLib, " -i" + cPathHwguiInc, "" ) + ;
