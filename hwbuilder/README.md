@@ -28,6 +28,8 @@ Usage:
 
    -gt<lib>          use specified GT library
 
+   -mt               build multithread app
+
    -{<keyword>}      a keyword-condition for a project file
 
    -pf<options>, -prgflags=<options>  options for Harbour compiler
